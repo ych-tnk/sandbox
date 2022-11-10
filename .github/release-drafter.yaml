@@ -73,3 +73,9 @@ autolabeler:
   - label: '武将/綱吉:tunayoshi'
     body:
       - '/^- [x] 後方互換性を伴うQAやレビューで発見された不具合の修正$/'
+template: |
+  ## What’s Changed
+
+  $CHANGES
+
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
