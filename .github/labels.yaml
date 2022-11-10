@@ -2,13 +2,13 @@
 # https://github.com/micnncim/action-label-syncer
 
 # semantic versioning labels
-- name: major
+- name: version/major
   description: APIに互換性のない変更。
   color: 0075ca
-- name: minor
+- name: version/minor
   description: 後方互換性を伴う機能追加、機能・性能改善。
   color: 008672
-- name: patch
+- name: version/patch
   description: 後方互換性を伴うバグ修正、リアファクタ、開発効率向上、ドキュメンテーション追加。
   color: d73a4a
 
