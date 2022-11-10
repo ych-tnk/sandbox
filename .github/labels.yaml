@@ -6,22 +6,39 @@
   description: APIに互換性のない変更。
   color: 0075ca
 - name: version/minor
-  description: 後方互換性を伴う機能追加、機能・性能改善。
+  description: 後方互換性を伴う機能追加、性能向上。
   color: 008672
 - name: version/patch
-  description: 後方互換性を伴うバグ修正、リアファクタ、開発効率向上、ドキュメンテーション追加。
+  description: 後方互換性を伴う不具合修正、開発効率改善、運用効率改善、リファクタ、ドキュメンテーション。
   color: d73a4a
+
+# category labels
+- name: category/enhancement
+  description: Product enhancement。機能追加・改善。
+  color: 88dd5d
+- name: category/improvement
+  description: Productiviety improvement。開発効率改善、運用効率改善、リファクタ、ドキュメンテーション。
+  color: fbca04
+- name: category/hotfix
+  description: Hot fix。本番環境に流出した不具合の修正。
+  color: fc9492
+- name: category/bugfix
+  description: Bug fix。QAやレビューで発見された不具合の修正。
+  color: f2b5d5
+- name: category/misc
+  description: Miscellaneous。その他。
+  color: f2b5d5
 
 # busho labels
 - name: 武将/信長:nobunaga
-  description: 短期マジ価値PR。機能追加、機能・性能改善。
+  description: 短期マジ価値PR。機能追加・改善。
   color: 88dd5d
 - name: 武将/秀吉:hideyoshi
-  description: 中期マジ価値PR。開発効率向上、ドキュメンテーション追加。
+  description: 中期マジ価値PR。開発効率向上、運用効率向上、リファクタ、ドキュメンテーション。
   color: fbca04
 - name: 武将/家康:ieyasu
-  description: リリース後:運用保守PR。バグ修正、リファクタ。
+  description: リリース後:保守PR。本番環境に流出した不具合の修正。
   color: fc9492
 - name: 武将/綱吉:tunayoshi
-  description: リリース前:保守運用PR。QAテストによるバグ修正。
+  description: リリース前:保守PR。QAやレビューで発見された不具合の修正。
   color: f2b5d5
