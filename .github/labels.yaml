@@ -1,0 +1,26 @@
+# config for action-label-syncer
+# https://github.com/micnncim/action-label-syncer
+
+# semantic versioning labels
+- name: major
+  description: APIに互換性のない変更。
+  color: a2eeef
+- name: minor
+  description: 後方互換性を伴う機能追加、機能・性能改善。
+- name: patch
+  description: 後方互換性を伴うバグ修正、リアファクタ、開発効率向上、ドキュメンテーション追加。
+  color: d73a4a
+
+# busho labels
+- name: 武将/信長:nobunaga
+  description: 短期マジ価値PR。機能追加、機能・性能改善。
+  color: 88dd5d
+- name: 武将/秀吉:hideyoshi
+  description: 中期マジ価値PR。開発効率向上、ドキュメンテーション追加。
+  color: fbca04
+- name: 武将/家康:ieyasu
+  description: リリース後:運用保守PR。バグ修正、リファクタ。
+  color: fc9492
+- name: 武将/綱吉:tunayoshi
+  description: リリース前:保守運用PR。QAテストによるバグ修正。
+  color: f2b5d5
