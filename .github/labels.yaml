@@ -3,27 +3,30 @@
 
 # semantic versioning labels
 - name: version/major
-  description: APIに互換性のない変更。
+  description: APIに互換性のない破壊的変更。
   color: 0075ca
 - name: version/minor
   description: 後方互換性を伴う機能追加、性能向上。
   color: 008672
 - name: version/patch
-  description: 後方互換性を伴う不具合修正、開発効率改善、運用効率改善、リファクタ、ドキュメンテーション。
+  description: 後方互換性を伴う開発効率改善、運用効率改善、リファクタ、ドキュメンテーション、不具合修正。
   color: d73a4a
 
 # category labels
+- name: category/breakingchange
+  description: Breaking Change。APIに互換性のない破壊的変更。
+  color: 88dd5d
 - name: category/enhancement
-  description: Product enhancement。機能追加・改善。
+  description: Product enhancement。後方互換性を伴う機能追加・改善。
   color: 88dd5d
 - name: category/improvement
-  description: Productiviety improvement。開発効率改善、運用効率改善、リファクタ、ドキュメンテーション。
+  description: Productiviety improvement。後方互換性を伴う開発効率改善、運用効率改善、リファクタ、ドキュメンテーション。
   color: fbca04
 - name: category/hotfix
-  description: Hot fix。本番環境に流出した不具合の修正。
+  description: Hot fix。後方互換性を伴う本番環境に流出した不具合の修正。
   color: fc9492
 - name: category/bugfix
-  description: Bug fix。QAやレビューで発見された不具合の修正。
+  description: Bug fix。後方互換性を伴うQAやレビューで発見された不具合の修正。
   color: f2b5d5
 - name: category/misc
   description: Miscellaneous。その他。

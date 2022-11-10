@@ -1,0 +1,75 @@
+name-template: 'Release v$RESOLVED_VERSION 🌈'
+categories:
+  - title: ':boom: Breaking Changes'
+    labels:
+      - 'category/breakingchange'
+  - title: ':sparkles: Product Enhancements'
+    labels:
+      - 'category/enhancement'
+  - title: ':zap: Productivity Improvements'
+    labels:
+      - 'category/improvement'
+  - title: ':ambulance: Hot Fixes'
+    labels:
+      - 'category/hotfix'
+  - title: ':bug: Bug Fixes'
+    labels:
+      - 'category/bugfix'
+  - title: 'Miscellaneous'
+    labels:
+      - 'category/misc'
+version-resolver:
+  major:
+    labels:
+      - 'version/major'
+  minor:
+    labels:
+      - 'version/minor'
+  patch:
+    labels:
+      - 'version/patch'
+  default: patch
+autolabeler:
+  - label: 'version/major'
+    body:
+      - '/^- [x] APIに互換性のない破壊的変更$/'
+  - label: 'version/minor'
+    body:
+      - '/^- [x] 後方互換性を伴う機能追加・改善$/'
+  - label: 'version/patch'
+    body:
+      - '/^- [x] 後方互換性を伴う開発効率改善、運用効率改善、リファクタ、ドキュメンテーション$/'
+      - '/^- [x] 後方互換性を伴う本番環境に流出した不具合の修正$/'
+      - '/^- [x] 後方互換性を伴うQAやレビューで発見された不具合の修正$/'
+      - '/^- [x] その他$/'
+  - label: 'breakingchange'
+    body:
+      - '/^- [x] APIに互換性のない破壊的変更$/'
+  - label: 'enhancement'
+    body:
+      - '/^- [x] 後方互換性を伴う機能追加・改善$/'
+  - label: 'improvement'
+    body:
+      - '/^- [x] 後方互換性を伴う開発効率改善、運用効率改善、リファクタ、ドキュメンテーション$/'
+  - label: 'hotfix'
+    body:
+      - '/^- [x] 後方互換性を伴う本番環境に流出した不具合の修正$/'
+  - label: 'bugfix'
+    body:
+      - '/^- [x] 後方互換性を伴うQAやレビューで発見された不具合の修正$/'
+  - label: 'misc'
+    body:
+      - '/^- [x] その他$/'
+  - label: '武将/信長:nobunaga'
+    body:
+      - '/^- [x] APIに互換性のない破壊的変更$/'
+      - '/^- [x] 後方互換性を伴う機能追加・改善$/'
+  - label: '武将/秀吉:hideyoshi'
+    body:
+      - '/^- [x] 後方互換性を伴う開発効率改善、運用効率改善、リファクタ、ドキュメンテーション$/'
+  - label: '武将/家康:ieyasu'
+    body:
+      - '/^- [x] 後方互換性を伴う本番環境に流出した不具合の修正$/'
+  - label: '武将/綱吉:tunayoshi'
+    body:
+      - '/^- [x] 後方互換性を伴うQAやレビューで発見された不具合の修正$/'
