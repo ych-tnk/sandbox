@@ -27,7 +27,7 @@
   color: f2b5d5
 - name: category/misc
   description: Miscellaneous。その他。
-  color: f2b5d5
+  color: cfd3d7
 
 # busho labels
 - name: 武将/信長:nobunaga
