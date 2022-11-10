@@ -1,0 +1,27 @@
+name: Check labels
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+      - unlabeled
+
+permissions:
+  pull-requests: read
+
+jobs:
+  check_labels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check semantic versioning label
+        uses: docker://agilepathway/pull-request-label-checker:latest
+        with:
+          one_of: major,minor,patch
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check busyou label
+        uses: docker://agilepathway/pull-request-label-checker:latest
+        with:
+          one_of: 武将/信長:nobunaga,武将/秀吉:hideyoshi,武将/家康:ieyasu,武将/綱吉:tunayoshi
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
