@@ -8,11 +8,11 @@ labels:
   - label: 'version/minor'
     sync: true
     matcher:
-      body: '(- \[x\] 機能追加・改善).*(- \[ \] APIに互換性のない破壊的変更)'
+      body: '(- \[x\] 機能追加・改善)(\n|.)*(- \[ \] APIに互換性のない破壊的変更)'
   - label: 'version/patch'
     sync: true
     matcher:
-      body: '(- \[x\] 開発効率改善、運用効率改善、リファクタ、ドキュメンテーション|- \[x\] 本番環境に流出した不具合の修正|- \[x\] QAやレビューで発見された不具合の修正|- \[x\] その他).*(- \[ \] APIに互換性のない破壊的変更)'
+      body: '(- \[x\] 開発効率改善、運用効率改善、リファクタ、ドキュメンテーション|- \[x\] 本番環境に流出した不具合の修正|- \[x\] QAやレビューで発見された不具合の修正|- \[x\] その他)(\n|.)*(- \[ \] APIに互換性のない破壊的変更)'
   - label: 'category/breakingchange'
     sync: true
     matcher:
