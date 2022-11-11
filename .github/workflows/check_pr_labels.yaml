@@ -20,15 +20,15 @@ jobs:
       - name: Check semantic versioning label
         uses: docker://agilepathway/pull-request-label-checker:latest
         with:
-          one_of: version/major,version/minor,version/patch
+          any_of: version/major,version/minor,version/patch
           repo_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Check category label
         uses: docker://agilepathway/pull-request-label-checker:latest
         with:
-          one_of: category/enhancement,category/improvement,category/hotfix,category/bugfix,category/misc
+          any_of: category/enhancement,category/improvement,category/hotfix,category/bugfix,category/misc
           repo_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Check busyou label
         uses: docker://agilepathway/pull-request-label-checker:latest
         with:
-          one_of: 武将/信長:nobunaga,武将/秀吉:hideyoshi,武将/家康:ieyasu,武将/綱吉:tunayoshi
+          any_of: 武将/信長:nobunaga,武将/秀吉:hideyoshi,武将/家康:ieyasu,武将/綱吉:tunayoshi
           repo_token: ${{ secrets.GITHUB_TOKEN }}
