@@ -1,4 +1,4 @@
-name-template: 'Release vRESOLVED_VERSION 🌈'
+name-template: 'Release v$RESOLVED_VERSION 🌈'
 categories:
   - title: ':boom: Breaking Changes'
     labels:
@@ -76,6 +76,6 @@ autolabeler:
 template: |
   ## What’s Changed
 
-  CHANGES
+  $CHANGES
 
-  **Full Changelog**: https://github.com/OWNER/REPOSITORY/compare/PREVIOUS_TAG...vRESOLVED_VERSION
+  **Full Changelog**: https://github.com/OWNER/REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
