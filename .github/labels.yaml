@@ -12,7 +12,7 @@
   description: 後方互換性を伴う開発効率改善、運用効率改善、リファクタ、ドキュメンテーション、不具合修正。
   color: 0052cc
 
-# category labels
+# pr category labels
 - name: category/breakingchange
   description: Breaking Change。APIに互換性のない破壊的変更。
   color: d93f0b
@@ -32,7 +32,7 @@
   description: Miscellaneous。その他。
   color: cfd3d7
 
-# busho labels
+# bushou labels
 - name: 武将/信長:nobunaga
   description: 短期マジ価値PR。機能追加・改善。
   color: 88dd5d

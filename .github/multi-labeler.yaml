@@ -53,3 +53,35 @@ labels:
     sync: true
     matcher:
       body: '(- \[x\] QAやレビューで発見された不具合の修正|- \[x\] その他)'
+
+checks:
+  - context: "Semantic versioning label check"
+    description:
+      success: "Ready for review & merge."
+      failure: "Missing semantic versioning labels."
+    labels:
+      any:
+        - version/major
+        - version/minor
+        - version/patch
+  - context: "PR category label check"
+    description:
+      success: "Ready for review & merge."
+      failure: "Missing PR category labels."
+    labels:
+      any:
+        - category/enhancement
+        - category/improvement
+        - category/hotfix
+        - category/bugfix
+        - category/misc
+  - context: "Bushou label check"
+    description:
+      success: "Ready for review & merge."
+      failure: "Missing bushou labels."
+    labels:
+      any:
+        - 武将/信長:nobunaga
+        - 武将/秀吉:hideyoshi
+        - 武将/家康:ieyasu
+        - 武将/綱吉:tunayoshi
