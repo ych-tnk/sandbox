@@ -4,18 +4,18 @@
 # semantic versioning labels
 - name: version/major
   description: APIに互換性のない破壊的変更。
-  color: 0075ca
+  color: b60205
 - name: version/minor
   description: 後方互換性を伴う機能追加、性能向上。
-  color: 008672
+  color: 0e8a16
 - name: version/patch
   description: 後方互換性を伴う開発効率改善、運用効率改善、リファクタ、ドキュメンテーション、不具合修正。
-  color: d73a4a
+  color: 0052cc
 
 # category labels
 - name: category/breakingchange
   description: Breaking Change。APIに互換性のない破壊的変更。
-  color: 0075ca
+  color: d93f0b
 - name: category/enhancement
   description: Product enhancement。後方互換性を伴う機能追加・改善。
   color: 88dd5d
@@ -24,10 +24,10 @@
   color: fbca04
 - name: category/hotfix
   description: Hot fix。後方互換性を伴う本番環境に流出した不具合の修正。
-  color: fc9492
+  color: e99695
 - name: category/bugfix
   description: Bug fix。後方互換性を伴うQAやレビューで発見された不具合の修正。
-  color: f2b5d5
+  color: 1d76db
 - name: category/misc
   description: Miscellaneous。その他。
   color: cfd3d7
@@ -41,7 +41,7 @@
   color: fbca04
 - name: 武将/家康:ieyasu
   description: リリース後:保守PR。本番環境に流出した不具合の修正。
-  color: fc9492
+  color: e99695
 - name: 武将/綱吉:tunayoshi
   description: リリース前:保守PR。QAやレビューで発見された不具合の修正。
-  color: f2b5d5
+  color: 1d76db
