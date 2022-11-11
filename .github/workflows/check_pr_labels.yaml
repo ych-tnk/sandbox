@@ -1,6 +1,8 @@
-name: Check labels
+name: Check PR labels
 on:
   pull_request:
+    branches:
+      - main
     types:
       - opened
       - synchronize
@@ -12,7 +14,7 @@ permissions:
   pull-requests: read
 
 jobs:
-  check_labels:
+  check_pr_labels:
     runs-on: ubuntu-latest
     steps:
       - name: Check semantic versioning label

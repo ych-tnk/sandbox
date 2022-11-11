@@ -1,0 +1,55 @@
+version: v1
+
+labels:
+  - label: 'version/major'
+    sync: true
+    matcher:
+      body: '\[x\] APIに互換性のない破壊的変更'
+  - label: 'version/minor'
+    sync: true
+    matcher:
+      body: '(- \[x\] 機能追加・改善).*(- \[ \] APIに互換性のない破壊的変更)'
+  - label: 'version/patch'
+    sync: true
+    matcher:
+      body: '(- \[x\] 開発効率改善、運用効率改善、リファクタ、ドキュメンテーション|- \[x\] 本番環境に流出した不具合の修正|- \[x\] QAやレビューで発見された不具合の修正|- \[x\] その他).*(- \[ \] APIに互換性のない破壊的変更)'
+  - label: 'category/breakingchange'
+    sync: true
+    matcher:
+      body: '- \[x\] APIに互換性のない破壊的変更'
+  - label: 'category/enhancement'
+    sync: true
+    matcher:
+      body: '- \[x\] 機能追加・改善'
+  - label: 'category/improvement'
+    sync: true
+    matcher:
+      body: '- \[x\] 開発効率改善、運用効率改善、リファクタ、ドキュメンテーション'
+  - label: 'category/hotfix'
+    sync: true
+    matcher:
+      body: '- \[x\] 本番環境に流出した不具合の修正'
+  - label: 'category/bugfix'
+    sync: true
+    matcher:
+      body: '- \[x\] QAやレビューで発見された不具合の修正'
+  - label: 'category/misc'
+    sync: true
+    matcher:
+      body: '- \[x\] その他'
+  - label: '武将/信長:nobunaga'
+    sync: true
+    matcher:
+      body: '- \[x\] 機能追加・改善'
+  - label: '武将/秀吉:hideyoshi'
+    sync: true
+    matcher:
+      body: '- \[x\] 開発効率改善、運用効率改善、リファクタ、ドキュメンテーション'
+  - label: '武将/家康:ieyasu'
+    sync: true
+    matcher:
+      body: '- \[x\] 本番環境に流出した不具合の修正'
+  - label: '武将/綱吉:tunayoshi'
+    sync: true
+    matcher:
+      body: '(- \[x\] QAやレビューで発見された不具合の修正|- \[x\] その他)'
