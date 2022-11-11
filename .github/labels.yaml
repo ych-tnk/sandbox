@@ -15,7 +15,7 @@
 # category labels
 - name: category/breakingchange
   description: Breaking Change。APIに互換性のない破壊的変更。
-  color: 88dd5d
+  color: 0075ca
 - name: category/enhancement
   description: Product enhancement。後方互換性を伴う機能追加・改善。
   color: 88dd5d
