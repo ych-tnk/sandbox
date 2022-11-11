@@ -10,7 +10,7 @@
   color: 0e8a16
 - name: version/patch
   description: 後方互換性を伴う開発効率改善、運用効率改善、リファクタ、ドキュメンテーション、不具合修正。
-  color: 0052cc
+  color: ff8c00
 
 # pr category labels
 - name: category/breakingchange
