@@ -2,6 +2,7 @@ name: Publish gem
 on:
   release:
     types:
+      - published
       - released
       - prereleased
 
