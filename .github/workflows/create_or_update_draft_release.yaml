@@ -17,7 +17,7 @@ permissions:
   pull-requests: read
 
 jobs:
-  crate_or_update_release_draft:
+  crate_or_update_draft_release:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
