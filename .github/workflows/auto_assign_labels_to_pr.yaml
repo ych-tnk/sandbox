@@ -1,7 +1,7 @@
 name: Auto assign labels to pull requests
 on:
   pull_request:
-    branchs:
+    branches:
       - main
     types:
       - opened
@@ -16,7 +16,7 @@ permissions:
   checks: write
 
 jobs:
-  apply_pr_labels:
+  auto_assign_labels_to_pr:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
