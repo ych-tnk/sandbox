@@ -3,8 +3,6 @@ on:
   release:
     types:
       - published
-      - released
-      - prereleased
 
 jobs:
   publish_gem:
