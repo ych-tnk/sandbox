@@ -1,4 +1,4 @@
-name: Release
+name: Publish release
 on:
   workflow_dispatch:
 
@@ -7,7 +7,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  release:
+  publish_release:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -28,7 +28,7 @@ jobs:
       - name: Bump up gem version
         run: |
           gem install bump --version 0.8.0
-          bump --no-commit set $(sed -e 's/^v\(.*\)$/\1/' <<<${{ steps.latest_draft_release.outputs.tag_name }})
+          bump --no-commit set $(echo ${{ steps.latest_draft_release.outputs.tag_name }} | sed -e 's/v\(.*\)$/\1/' | sed -e 's/^\([[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\)[.-]\?\(.\+\)$/\1.\2/')
       - name: Create pull request
         id: create_bump_up_pr
         uses: peter-evans/create-pull-request@v5
