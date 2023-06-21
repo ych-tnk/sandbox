@@ -42,8 +42,7 @@ jobs:
 #      - name: Approve pull request
 #        run: gh pr review --approve ${{ steps.create_bump_up_pr.outputs.pull-request-url }}
 #        env:
-#          # secrets.GITHUB_TOKEN cannot be used because the pull request approver must be someone other than the creator.
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # secrets.GITHUB_TOKEN cannot be used because the pull request approver must be someone other than the creator.
       - name: Merge pull request
         run: gh pr merge --merge --auto ${{ steps.create_bump_up_pr.outputs.pull-request-url }}
       - name: Update and publish draft release
