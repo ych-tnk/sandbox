@@ -33,7 +33,7 @@ jobs:
         id: create_bump_up_pr
         uses: peter-evans/create-pull-request@v5
         with:
-          title: Bump up artifact version
+          title: Bump up artifact version to ${{ steps.latest_draft_release.outputs.tag_name }}
           labels: |
             version/patch
             category/misc
