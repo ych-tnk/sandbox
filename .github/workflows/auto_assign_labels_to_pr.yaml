@@ -1,4 +1,4 @@
-name: Apply PR labels
+name: Auto assign labels to pull requests
 on:
   pull_request:
     branchs:
@@ -19,10 +19,9 @@ jobs:
   apply_pr_labels:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Auto assign labels to pull requests
+        uses: fuxingloh/multi-labeler@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: fuxingloh/multi-labeler@v1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          config-path: .github/multi-labeler.yaml
+          config-path: .github/labeler.yaml

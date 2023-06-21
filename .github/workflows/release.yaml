@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Setup ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2.2' 
+      - name: Get latest draft release
+        uses: release-drafter/release-drafter@v5
+        id: latest_draft_release
+        with:
+          config-name: release-drafter.yaml
+      - name: Bump up gem version
+        run: |
+          gem install bump --version 0.8.0
+          bump --no-commit set $(sed -e 's/^v\(.*\)$/\1/ <<<${{ steps.latest_draft_release.outputs.tag_name }})
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          title: Bump up artifact version
+          labels:
+            - version/patch
+            - category/misc
+            - 武将/秀吉:hideyoshi
+      - name: Approve pull request
+        run: gh pr review --approve ${{ steps.create_bup_up_pr.outputs.pull-request-url }}
+      - name: Merge pull request
+        run: gh pr merge --merge --auto ${{ steps.create_bup_up_pr.outputs.pull-request-url }}
+      - name: Update and publish draft release
+        uses: release-drafter/release-drafter@v5
+        with:
+          config-name: release-drafter.yaml
+          publish: true
