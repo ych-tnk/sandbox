@@ -58,7 +58,7 @@ jobs:
         uses: release-drafter/release-drafter@v5
         with:
           config-name: release-drafter.yaml
-          tag-template: v$RESOLVED_VERSION${{ github.event.inputs.release_type != "regular" && format('-{0}.pr{1}', github.event.inputs.release_type, github.event.pull_request.number)}}
+          tag-template: v$RESOLVED_VERSION${{ github.event.inputs.release_type != 'regular' && format('-{0}.pr{1}', github.event.inputs.release_type, github.event.pull_request.number)}}
           publish: true
 #        env:
 #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # secrets.GITHUB_TOKEN cannot be used because events triggered by the github-actions user do not create new workflow executions.
