@@ -38,6 +38,9 @@ jobs:
         id: latest_draft_release
         with:
           config-name: release-drafter.yaml
+          prerelease: ${{ env.IS_PRERELEASE }}
+          tag: v$RESOLVED_VERSION${{ env.IS_PRERELEASE && env.PRERELEASE_IDENTIFIER }}
+          version: v$RESOLVED_VERSION${{ env.IS_PRERELEASE && env.PRERELEASE_IDENTIFIER }}
       - name: Bump up gem version
         run: |
           gem install bump --version 0.8.0
