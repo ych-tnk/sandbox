@@ -42,9 +42,7 @@ jobs:
           tag: v$RESOLVED_VERSION${{ env.IS_PRERELEASE && env.PRERELEASE_IDENTIFIER }}
           version: v$RESOLVED_VERSION${{ env.IS_PRERELEASE && env.PRERELEASE_IDENTIFIER }}
       - name: Bump up gem version
-        run: |
-          gem install bump --version 0.8.0
-          bump --no-commit set $(echo ${{ steps.latest_draft_release.outputs.tag_name }} | sed -e 's/v\(.*\)$/\1/' | sed -e 's/^\([[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\)[.-]\?\(.\+\)$/\1.\2/')
+        run: sed -e "s/\([[:blank:]]*.*\.\?version[[:blank:]]*=[[:blank:]]['\"]\).\+\(['\"].*\)/\1${{ steps.latest_draft_release.outputs.tag_name }}\2/i" sandbox.gemspec
       - name: Create pull request
         id: create_bump_up_pr
         uses: peter-evans/create-pull-request@v5
