@@ -4,6 +4,10 @@ on:
     types:
       - published
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   publish_gem:
     runs-on: ubuntu-latest
