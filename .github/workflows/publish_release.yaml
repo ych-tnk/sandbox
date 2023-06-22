@@ -46,7 +46,7 @@ jobs:
       - name: Bump up gem version
         run: |
           v=$(echo ${{ steps.latest_draft_release.outputs.tag_name }} | sed -e 's/v\(.*\)$/\1/' | sed -e 's/^\([[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\)[.-]\?\(.\+\)$/\1.\2/')
-          sed -e "s/\([[:blank:]]*.*\.\?version[[:blank:]]*=[[:blank:]]['\"]\).\+\(['\"].*\)/\1${v}\2/i" ${{ env.GEM_VERSION_FILE }}
+          sed -i -e "s/\([[:blank:]]*.*\.\?version[[:blank:]]*=[[:blank:]]['\"]\).\+\(['\"].*\)/\1${v}\2/i" ${{ env.GEM_VERSION_FILE }}
       - name: Create pull request
         id: create_bump_up_pr
         uses: peter-evans/create-pull-request@v5
