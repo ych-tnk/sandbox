@@ -17,7 +17,8 @@ permissions:
 
 env:
   IS_PRERELEASE: ${{ github.event.inputs.release_type != 'regular' }}
-  PRERELEASE_IDENTIFIER: ${{ format('-{0}', github.event.inputs.release_type)}}
+  PRERELEASE_IDENTIFIER: ${{ github.event.inputs.release_type != 'regular' && format('-{0}', github.event.inputs.release_type) || ''}}
+  GEM_VERSION_FILE: sandbox.gemspec
 
 jobs:
   publish_release:
@@ -39,12 +40,12 @@ jobs:
         with:
           config-name: release-drafter.yaml
           prerelease: ${{ env.IS_PRERELEASE }}
-          tag: v$RESOLVED_VERSION${{ env.IS_PRERELEASE && env.PRERELEASE_IDENTIFIER || '' }}
-          version: v$RESOLVED_VERSION${{ env.IS_PRERELEASE && env.PRERELEASE_IDENTIFIER || '' }}
+          tag: v$RESOLVED_VERSION${{ env.PRERELEASE_IDENTIFIER }}
+          version: v$RESOLVED_VERSION${{ env.PRERELEASE_IDENTIFIER }}
       - name: Bump up gem version
         run: |
           v=$(echo ${{ steps.latest_draft_release.outputs.tag_name }} | sed -e 's/v\(.*\)$/\1/' | sed -e 's/^\([[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\)[.-]\?\(.\+\)$/\1.\2/')
-          sed -e "s/\([[:blank:]]*.*\.\?version[[:blank:]]*=[[:blank:]]['\"]\).\+\(['\"].*\)/\1${v}\2/i" sandbox.gemspec
+          sed -e "s/\([[:blank:]]*.*\.\?version[[:blank:]]*=[[:blank:]]['\"]\).\+\(['\"].*\)/\1${v}\2/i" ${{ env.GEM_VERSION_FILE }}
       - name: Create pull request
         id: create_bump_up_pr
         uses: peter-evans/create-pull-request@v5
@@ -66,8 +67,8 @@ jobs:
         with:
           config-name: release-drafter.yaml
           prerelease: ${{ env.IS_PRERELEASE }}
-          tag: v$RESOLVED_VERSION${{ env.IS_PRERELEASE && env.PRERELEASE_IDENTIFIER || '' }}
-          version: v$RESOLVED_VERSION${{ env.IS_PRERELEASE && env.PRERELEASE_IDENTIFIER || '' }}
+          tag: v$RESOLVED_VERSION${{ env.PRERELEASE_IDENTIFIER }}
+          version: v$RESOLVED_VERSION${{ env.PRERELEASE_IDENTIFIER }}
           publish: true
 #        env:
 #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # secrets.GITHUB_TOKEN cannot be used because events triggered by the github-actions user do not create new workflow executions.
