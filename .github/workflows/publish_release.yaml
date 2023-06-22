@@ -39,8 +39,8 @@ jobs:
         with:
           config-name: release-drafter.yaml
           prerelease: ${{ env.IS_PRERELEASE }}
-          tag: v$RESOLVED_VERSION${{ env.IS_PRERELEASE == true && env.PRERELEASE_IDENTIFIER || '' }}
-          version: v$RESOLVED_VERSION${{ env.IS_PRERELEASE == true  && env.PRERELEASE_IDENTIFIER || '' }}
+          tag: v$RESOLVED_VERSION${{ env.IS_PRERELEASE && env.PRERELEASE_IDENTIFIER || '' }}
+          version: v$RESOLVED_VERSION${{ env.IS_PRERELEASE && env.PRERELEASE_IDENTIFIER || '' }}
       - name: Bump up gem version
         run: |
           v=$(echo ${{ steps.latest_draft_release.outputs.tag_name }} | sed -e 's/v\(.*\)$/\1/' | sed -e 's/^\([[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\)[.-]\?\(.\+\)$/\1.\2/')
@@ -66,8 +66,8 @@ jobs:
         with:
           config-name: release-drafter.yaml
           prerelease: ${{ env.IS_PRERELEASE }}
-          tag: v$RESOLVED_VERSION${{ env.IS_PRERELEASE == true && env.PRERELEASE_IDENTIFIER || '' }}
-          version: v$RESOLVED_VERSION${{ env.IS_PRERELEASE == true && env.PRERELEASE_IDENTIFIER || '' }}
+          tag: v$RESOLVED_VERSION${{ env.IS_PRERELEASE && env.PRERELEASE_IDENTIFIER || '' }}
+          version: v$RESOLVED_VERSION${{ env.IS_PRERELEASE && env.PRERELEASE_IDENTIFIER || '' }}
           publish: true
 #        env:
 #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # secrets.GITHUB_TOKEN cannot be used because events triggered by the github-actions user do not create new workflow executions.
