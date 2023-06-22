@@ -17,7 +17,7 @@ permissions:
 
 env:
   IS_PRERELEASE: ${{ github.event.inputs.release_type != 'regular' }}
-  PRERELEASE_IDENTIFIER: ${{ env.IS_PRE_RELEASE && format('-{0}', github.event.inputs.release_type)}}
+  PRERELEASE_IDENTIFIER: ${{ format('-{0}', github.event.inputs.release_type)}}
 
 jobs:
   publish_release:
@@ -62,9 +62,9 @@ jobs:
         uses: release-drafter/release-drafter@v5
         with:
           config-name: release-drafter.yaml
-          prerelease: $IS_PRERELEASE
-          tag: v$RESOLVED_VERSION$PRERELEASE_IDENTIFIER
-          version: v$RESOLVED_VERSION$PRERELEASE_IDENTIFIER
+          prerelease: ${{ env.IS_PRERELEASE }}
+          tag: v$RESOLVED_VERSION${{ env.IS_PRERELEASE && env.PRERELEASE_IDENTIFIER }}
+          version: v$RESOLVED_VERSION${{ env.IS_PRERELEASE && env.PRERELEASE_IDENTIFIER }}
           publish: true
 #        env:
 #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # secrets.GITHUB_TOKEN cannot be used because events triggered by the github-actions user do not create new workflow executions.
