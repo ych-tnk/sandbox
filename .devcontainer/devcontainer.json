@@ -29,7 +29,6 @@
             "extensions": [
                 "ms-ceintl.vscode-language-pack-ja",
                 "ms-vsliveshare.vsliveshare",
-                "github.codespaces",
                 "github.vscode-pull-request-github",
                 "eamodio.gitlens",
                 "golang.go",
