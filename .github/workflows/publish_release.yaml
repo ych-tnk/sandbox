@@ -17,7 +17,7 @@ permissions:
 
 env:
   IS_PRERELEASE: ${{ github.event.inputs.release_type != 'regular' }}
-  PRERELEASE_IDENTIFIER: ${{ github.event.inputs.release_type != 'regular' && format('-{0}', github.event.inputs.release_type) || ''}}
+  PRERELEASE_IDENTIFIER: ${{ github.event.inputs.release_type != 'regular' && format('-{0}', github.event.inputs.release_type) || '' }}
   GEM_VERSION_FILE: sandbox.gemspec
 
 jobs:
