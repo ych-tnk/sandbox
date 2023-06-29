@@ -1,11 +1,12 @@
 name: Publish gem
 
-workflow_call:
-  inputs:
-    gem_name:
-      description: A name of the gem to be published
-      required: true
-      type: string
+on:
+  workflow_call:
+    inputs:
+      gem_name:
+        description: A name of the gem to be published
+        required: true
+        type: string
 
 jobs:
   publish_gem:
