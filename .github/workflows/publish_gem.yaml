@@ -1,12 +1,11 @@
 name: Publish gem
-on:
-  release:
-    types:
-      - published
 
-permissions:
-  contents: read
-  packages: write
+workflow_call:
+  inputs:
+    gem_name:
+      description: A name of the gem to be published
+      required: true
+      type: string
 
 jobs:
   publish_gem:
@@ -14,18 +13,19 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
       - name: Setup ruby
         uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.2.2' 
+
       - name: Configure gem credentials
         run: |
           mkdir -p ~/.gem
           touch ~/.gem/credentials
           chmod 600 ~/.gem/credentials
           echo -e "---\n:github: Bearer ${{ secrets.GITHUB_TOKEN }}" >> ~/.gem/credentials
+
       - name: Build and push gem
         run: |
           rm -f ${{ inputs.gem }}-*.gem
           gem build ${{ inputs.gem }}.gemspec
-      #     gem push --key github --host https://rubygems.pkg.github.com/C-FO ${{ inputs.gem }}-*.gem
+      #     gem push --key github --host https://rubygems.pkg.github.com/C-FO ${{ inputs.gem_name }}-*.gem

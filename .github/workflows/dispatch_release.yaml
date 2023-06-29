@@ -1,0 +1,75 @@
+name: Dispatch release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: Select a release type
+        required: true
+        type: choice
+        options:
+          - 'regular'
+          - 'pre'
+          - 'migration'
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  dispatch_release:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Get latest release
+        id: get_latest_release
+        run: echo "value=$(gh api /repos/{owner}/{repo}/releases --jq .[0])" >> $GITHUB_OUTPUT
+
+      - name: Get release_id of latest release
+        id: get_release_id_of_latest_release
+        run: echo "value=${fromJson(steps.get_latest_release.outputs.value)['id']}" >> $GITHUB_OUTPUT
+
+      - name: Get release_vesion of latest release
+        id: get_release_version_of_latest_release
+        run: |
+          tag_name=${{ fromJson(steps.get_latest_release.outputs.value)['tag_name'] }}
+          release_vesion=${tag_name}${{ github.event.inputs.release_type != 'regular' && format('-{0}', github.event.inputs.release_type) || '' }}
+          echo "value=${release_vesion}" >> $GITHUB_OUTPUT
+
+      - name: Get release_type of latest release
+        id: get_release_type_of_latest_release
+        run: |
+          tag_name=${{ fromJson(steps.get_latest_release.outputs.value)['tag_name'] }}
+          prerelease_identifier=$(echo "${tag_name}" | sed -e 's/^v//' -e 's/^[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+-\?\(.*\)$/\1/')
+          release_type=$(test "${prerelease_identifier}" == '' && echo 'regular' || echo "${prerelease_identifier}")
+          echo "value=${release_type}" >> $GITHUB_OUTPUT
+
+      - name: Check if release is possible
+        run: |
+          is_latest_release_published="${{ fromJson(steps.get_latest_release.outputs.value)['draft'] != 'true' }}
+          is_no_change_release_type="${{ steps.get_release_type_of_latest_release.outputs.value == inputs.release_type }}
+          ${is_latest_release_published} && ${is_no_change_release_type} && exit 1
+
+      - name: Update gem version
+        if: fromJson(steps.get_latest_release.outputs.value)['draft'] == 'true'
+        uses: ./.github/workflows/update_gem_version.yaml
+        with:
+          version: ${{ steps.get_release_version_of_latest_release.outputs.value }}
+          version_file: sandbox.gemspec
+
+      - name: Publish release
+        uses: ./.github/workflows/publish_release.yaml
+        with:
+          release_id: ${{ steps.get_release_id_of_latest_release.outputs.value }}
+          release_vesion: ${{ steps.get_release_version_of_latest_release.outputs.value }}
+          prelerease: ${{ github.event.inputs.release_type != 'regular' }}
+
+      - name: Publish gem
+        uses: ./.github/workflows/publish_gem.yaml
+        with:
+          gem_name: sandbox

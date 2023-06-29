@@ -1,76 +1,32 @@
 name: Publish release
+
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
-      release_type:
-        description: Select a release type
+      release_id:
+        description: A unique identifier of the release
         required: true
-        type: choice
-        options:
-          - 'regular'
-          - 'pre'
-          - 'migration'
-
-permissions:
-  contents: write
-  pull-requests: write
-
-env:
-  IS_PRERELEASE: ${{ github.event.inputs.release_type != 'regular' }}
-  PRERELEASE_IDENTIFIER: ${{ github.event.inputs.release_type != 'regular' && format('-{0}', github.event.inputs.release_type) || ''}}
-  GEM_VERSION_FILE: sandbox.gemspec
+        type: string
+      release_version:
+        description: A version of the release
+        required: true
+        type: string
+      prerelease:
+        description: A flag whether the release is pre-release or not
+        required: true
+        type: bool
 
 jobs:
   publish_release:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Setup ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.2.2' 
-      - name: Get latest draft release
-        uses: release-drafter/release-drafter@v5
-        id: latest_draft_release
-        with:
-          config-name: release-drafter.yaml
-          prerelease: ${{ env.IS_PRERELEASE }}
-          name: v$RESOLVED_VERSION${{ env.PRERELEASE_IDENTIFIER }}
-          tag: v$RESOLVED_VERSION${{ env.PRERELEASE_IDENTIFIER }}
-          version: v$RESOLVED_VERSION${{ env.PRERELEASE_IDENTIFIER }}
-      - name: Bump up gem version
+      - name: Publish release
         run: |
-          v=$(echo ${{ steps.latest_draft_release.outputs.tag_name }} | sed -e 's/v\(.*\)$/\1/' | sed -e 's/^\([[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\)[.-]\?\(.\+\)$/\1.\2/')
-          sed -e "s/\([[:blank:]]*.*\.\?version[[:blank:]]*=[[:blank:]]['\"]\).\+\(['\"].*\)/\1${v}\2/i" ${{ env.GEM_VERSION_FILE }}
-      - name: Create pull request
-        id: create_bump_up_pr
-        uses: peter-evans/create-pull-request@v5
-        with:
-          title: Bump up artifact version to ${{ steps.latest_draft_release.outputs.tag_name }}
-          labels: |
-            version/patch
-            category/misc
-            武将/秀吉:hideyoshi
-          delete-branch: true
-#      - name: Approve pull request
-#        run: gh pr review --approve ${{ steps.create_bump_up_pr.outputs.pull-request-url }}
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # secrets.GITHUB_TOKEN cannot be used because the pull request approver must be someone other than the creator.
-      - name: Merge pull request
-        run: gh pr merge --merge --auto ${{ steps.create_bump_up_pr.outputs.pull-request-url }}
-      - name: Update and publish draft release
-        uses: release-drafter/release-drafter@v5
-        with:
-          config-name: release-drafter.yaml
-          prerelease: ${{ env.IS_PRERELEASE }}
-          name: v$RESOLVED_VERSION${{ env.PRERELEASE_IDENTIFIER }}
-          tag: v$RESOLVED_VERSION${{ env.PRERELEASE_IDENTIFIER }}
-          version: v$RESOLVED_VERSION${{ env.PRERELEASE_IDENTIFIER }}
-          publish: true
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # secrets.GITHUB_TOKEN cannot be used because events triggered by the github-actions user do not create new workflow executions.
+          gh api /repos/{owner}/{repo}/releases/${{ inputs.release_id }} \
+            --field release_id=${{ inputs.release_id }} \
+            --field name=${{ inputs.release_version }} \
+            --field tag_name=${{ inputs.release_version }} \
+            --field prerelease=${{ inputs.prerelease }} \
+            --field draft=false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
