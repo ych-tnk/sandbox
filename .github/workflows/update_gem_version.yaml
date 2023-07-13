@@ -4,11 +4,17 @@ on:
   workflow_call:
     inputs:
       version:
-        description: A valid semantic version
+        description: A valid semantic version.
         required: true
         type: string
       version_file:
-        description: A path of the file containing the version string to be updated
+        description: A path of the file containing the version string to be updated.
+        required: true
+        type: string
+      pr_approvable_token:
+        description: |
+          An access token that can approve pull requests.
+          NOTICE: secrets.GITHUB_TOKEN cannot be used because the pull request approver must be someone other than the creator.
         required: true
         type: string
 
@@ -26,26 +32,15 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           title: Update gem version to ${{ inputs.version }}
-          labels: |
-            version/patch
-            category/misc
-            武将/秀吉:hideyoshi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-#      - name: Approve pull request
-#        run: gh pr review --approve ${{ steps.create_bump_up_pr.outputs.pull-request-url }}
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # secrets.GITHUB_TOKEN cannot be used because the pull request approver must be someone other than the creator.
+     - name: Approve pull request
+       run: gh pr review --approve ${{ steps.create_bump_up_pr.outputs.pull-request-url }}
+       env:
+         GITHUB_TOKEN: ${{ inputs.pr_approvable_token }}
 
       - name: Merge pull request
         run: gh pr merge --merge --auto ${{ steps.create_bump_up_pr.outputs.pull-request-url }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Update and publish draft release
-        uses: release-drafter/release-drafter@v5
-        with:
-          config-name: release-drafter.yaml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

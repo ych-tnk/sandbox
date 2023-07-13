@@ -23,10 +23,10 @@ jobs:
           mkdir -p ~/.gem
           touch ~/.gem/credentials
           chmod 600 ~/.gem/credentials
-          echo -e "---\n:github: Bearer ${{ secrets.GITHUB_TOKEN }}" >> ~/.gem/credentials
+          echo -e "---\n:github: Bearer ${{ secrets.GITHUB_TOKEN }}" > ~/.gem/credentials
 
       - name: Build and push gem
         run: |
-          rm -f ${{ inputs.gem }}-*.gem
-          gem build ${{ inputs.gem }}.gemspec
-      #     gem push --key github --host https://rubygems.pkg.github.com/C-FO ${{ inputs.gem_name }}-*.gem
+          rm -f ${{ inputs.gem_name }}-*.gem
+          gem build ${{ inputs.gem_name }}.gemspec
+          gem push --key github --host https://rubygems.pkg.github.com/ych-tnk ${{ inputs.gem_name }}-*.gem
