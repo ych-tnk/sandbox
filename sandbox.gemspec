@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name = 'sandbox'
-  spec.version = '2.3.7.pre'
+  spec.version = '2.3.8'
   spec.authors = ['Yuichi Tanaka']
   spec.email = ['yuichi-tanaka@c-fo.com']
 
