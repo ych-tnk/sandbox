@@ -18,8 +18,11 @@ permissions:
   packages: write
 
 jobs:
-  dispatch_release:
+  prepare_release:
     runs-on: ubuntu-latest
+    outputs:
+      release_id: ${{ steps.get_release_id_of_latest_release.outputs.value }}
+      release_version: ${{ steps.get_release_version_of_latest_release.outputs.value }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -57,21 +60,30 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-#      - name: Update gem version
-#        uses: ./.github/workflows/actions/release/update_gem_version.yaml
-#        with:
-#          version: ${{ steps.get_release_version_of_latest_release.outputs.value }}
-#          version_file: sandbox.gemspec
-#          pr_approvable_token: ${{ secrets.TEST }}
+  update_gem_version:
+    name: Update gem version
+    uses: ./.github/workflows/update_gem_version.yaml
+    needs: prepare_release
+    with:
+      version: ${{ needs.prepare_release.release_version }}
+      version_file: sandbox.gemspec
+    secrets:
+      pr_approvable_token: ${{ secrets.TEST }}
 
-      - name: Publish release
-        uses: ./.github/workflows/actions/release/publish_release.yaml
-        with:
-          release_id: ${{ steps.get_release_id_of_latest_release.outputs.value }}
-          release_vesion: ${{ steps.get_release_version_of_latest_release.outputs.value }}
-          prelerease: ${{ github.event.inputs.release_type != 'regular' }}
+  publish_release:
+    name: Publish release
+    uses: ./.github/workflows/publish_release.yaml
+    needs:
+      - prepare_release
+      - update_gem_version
+    with:
+      release_id: ${{ needs.prepare_release.release_id }}
+      release_vesion: ${{ needs.prepare_release.release_version }}
+      prelerease: ${{ github.event.inputs.release_type != 'regular' }}
 
-      - name: Publish gem
-        uses: ./.github/workflows/actions/release/publish_gem.yaml
-        with:
-          gem_name: sandbox
+  publish_gem:
+    name: Publish gem
+    uses: /.github/workflows/publish_gem.yaml
+    needs: update_gem_version
+    with:
+      gem_name: sandbox
