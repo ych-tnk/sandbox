@@ -4,7 +4,7 @@ Gem::Specification.new do |spec|
   spec.authors = ['Yuichi Tanaka']
   spec.email = ['yuichi-tanaka@c-fo.com']
 
-  spec.required_ruby_version = ''
+  spec.required_ruby_version = '>= 2.7.0'
 
   spec.summary = 'sandbox'
   spec.description = 'sandbox'
