@@ -29,6 +29,7 @@ jobs:
         run: |
           gem_format_version=$(echo ${{ inputs.version }} | sed -e 's/^v//' -e 's/^\([[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\)[-]\?\(.\+\)$/\1.\2/')
           sed -i -e "s/\([[:blank:]]*.*\.\?version[[:blank:]]*=[[:blank:]]['\"]\).\+\(['\"].*\)/\1${gem_format_version}\2/i" ${{ inputs.version_file }}
+          git commit add -m "Bump ${{ inputs.version_file }} to ${{ inputs.version }}" ${{ inputs.version_file }}
 
       - name: Create pull request
         id: create_bump_up_pr
