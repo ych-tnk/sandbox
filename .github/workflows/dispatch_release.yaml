@@ -12,17 +12,14 @@ on:
           - 'pre'
           - 'migrationtest'
 
-permissions:
-  contents: write
-  pull-requests: write
-  packages: write
-
 jobs:
   prepare_release:
     runs-on: ubuntu-latest
     outputs:
       release_id: ${{ steps.get_release_id_of_latest_release.outputs.value }}
       release_version: ${{ steps.get_release_version_of_latest_release.outputs.value }}
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
