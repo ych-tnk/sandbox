@@ -84,6 +84,6 @@ jobs:
   publish_gem:
     name: Publish gem
     uses: ./.github/workflows/publish_gem.yaml
-    needs: update_gem_version
+    needs: publish_release
     with:
       gem_name: sandbox
