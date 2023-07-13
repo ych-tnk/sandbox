@@ -64,6 +64,9 @@ jobs:
     name: Update gem version
     uses: ./.github/workflows/update_gem_version.yaml
     needs: prepare_release
+    permissions:
+      contents: write 
+      pull-requests: write
     with:
       version: ${{ needs.prepare_release.outputs.release_version }}
       version_file: sandbox.gemspec
@@ -76,6 +79,8 @@ jobs:
     needs:
       - prepare_release
       - update_gem_version
+    permissions:
+      contents: write
     with:
       release_id: ${{ needs.prepare_release.outputs.release_id }}
       release_version: ${{ needs.prepare_release.outputs.release_version }}
@@ -85,5 +90,8 @@ jobs:
     name: Publish gem
     uses: ./.github/workflows/publish_gem.yaml
     needs: publish_release
+    permissions:
+      contents: read
+      packages: write
     with:
       gem_name: sandbox
