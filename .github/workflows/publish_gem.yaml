@@ -24,6 +24,7 @@ jobs:
           touch ~/.gem/credentials
           chmod 600 ~/.gem/credentials
           echo -e "---\n:github: Bearer ${{ secrets.GITHUB_TOKEN }}" > ~/.gem/credentials
+
       - name: Build and push gem
         run: |
           rm -f ${{ inputs.gem_name }}-*.gem
