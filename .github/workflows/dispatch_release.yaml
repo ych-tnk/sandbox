@@ -61,8 +61,8 @@ jobs:
     permissions:
       contents: write
     with:
-      release_id: ${{ needs.update_gem_version.outputs.updated_release.id }}
-      release_version: ${{ needs.update_gem_version.outputs.updated_release.tag_name }}
+      release_id: ${{ needs.update_gem_version.outputs.created_or_updated_draft_release_id }}
+      release_version: ${{ needs.update_gem_version.outputs.created_or_updated_draft_release_version }}
       prerelease: ${{ github.event.inputs.release_type != 'regular' }}
 
   publish_gem:
