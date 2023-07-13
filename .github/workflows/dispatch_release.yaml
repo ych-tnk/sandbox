@@ -79,7 +79,7 @@ jobs:
     with:
       release_id: ${{ needs.prepare_release.release_id }}
       release_vesion: ${{ needs.prepare_release.release_version }}
-      prelerease: ${{ github.event.inputs.release_type != 'regular' }}
+      prerelease: ${{ github.event.inputs.release_type != 'regular' }}
 
   publish_gem:
     name: Publish gem
