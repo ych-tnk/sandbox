@@ -57,12 +57,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update gem version
-        uses: ./.github/workflows/actions/release/update_gem_version.yaml
-        with:
-          version: ${{ steps.get_release_version_of_latest_release.outputs.value }}
-          version_file: sandbox.gemspec
-          pr_approvable_token: ${{ secrets.TEST }}
+#      - name: Update gem version
+#        uses: ./.github/workflows/actions/release/update_gem_version.yaml
+#        with:
+#          version: ${{ steps.get_release_version_of_latest_release.outputs.value }}
+#          version_file: sandbox.gemspec
+#          pr_approvable_token: ${{ secrets.TEST }}
 
       - name: Publish release
         uses: ./.github/workflows/actions/release/publish_release.yaml
