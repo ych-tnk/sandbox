@@ -72,6 +72,6 @@ jobs:
           prelerease: ${{ github.event.inputs.release_type != 'regular' }}
 
       - name: Publish gem
-        uses: /.github/workflows/actions/release/publish_gem.yaml
+        uses: ./.github/workflows/actions/release/publish_gem.yaml
         with:
           gem_name: sandbox
