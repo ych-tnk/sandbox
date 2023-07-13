@@ -18,9 +18,8 @@ jobs:
     outputs:
       next_release_version: ${{ steps.resolve_next_release_version.outputs.value }}
     permissions:
-      # write permission is required to obtain draft releases.
-      contents: write
-      pull-requests: write
+      contents: read
+      pull-requests: write # write permission is required to obtain draft releases.
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -28,7 +27,7 @@ jobs:
       - name: Resolve next release vesion
         id: resolve_next_release_version
         run: |
-          latest_release_version=$(gh api /repos/{owner}/{repo}/releases --jq '. | sort_by(.created_at) | reverse | .[0].tag_name')
+          latest_release_version=$(gh api /repos/{owner}/{repo}/releases --jq '.[0].tag_name')
           latest_release_version_core=$(echo "${latest_release_version}" | sed -e 's/^\(v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\).*$/\1/')
           next_release_vesion=${latest_release_version_core}${{ github.event.inputs.release_type != 'regular' && format('-{0}', github.event.inputs.release_type) || '' }}
           echo "value=${next_release_vesion}" >> $GITHUB_OUTPUT
