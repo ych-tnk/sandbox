@@ -52,7 +52,7 @@ jobs:
       - name: Check if release_vesion has already been published
         run: |
           gh api /repos/{owner}/{repo}/releases -q '.[] | select(.draft != true) | .tag_name' \
-          | test $(grep --line-regexp --count "${{ steps.get_release_version_of_latest_release.outputs.value }}") -eq 0 \ \
+          | test $(grep --line-regexp --count "${{ steps.get_release_version_of_latest_release.outputs.value }}") -eq 0 \
           || (echo "${{ steps.get_release_version_of_latest_release.outputs.value }} is already published" && exit 1)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
