@@ -14,12 +14,15 @@ on:
       prerelease:
         description: A flag whether the release is pre-release or not
         required: true
-        type: bool
+        type: boolean
 
 jobs:
   publish_release:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - name: Publish release
         run: |
           gh api /repos/{owner}/{repo}/releases/${{ inputs.release_id }} \
