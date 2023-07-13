@@ -18,8 +18,9 @@ jobs:
     outputs:
       next_release_version: ${{ steps.resolve_next_release_version.outputs.value }}
     permissions:
-      contents: read
-      pull-requests: write # write permission is required to obtain draft releases.
+      # write permission is required to obtain draft releases.
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
