@@ -19,17 +19,14 @@ jobs:
       release_id: ${{ steps.get_release_id_of_latest_release.outputs.value }}
       release_version: ${{ steps.get_release_version_of_latest_release.outputs.value }}
     permissions:
-      contents: read
+      contents: write # contents write permission is required to obtain draft releases.
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Get latest release
         id: get_latest_release
-        run: |
-          gh --version
-          gh api /repos/{owner}/{repo}/releases --jq '. | sort_by(.created_at) | reverse'
-          echo "value=$(gh api /repos/{owner}/{repo}/releases --jq '. | sort_by(.created_at) | reverse | .[0]')" >> $GITHUB_OUTPUT
+        run: echo "value=$(gh api /repos/{owner}/{repo}/releases --jq '. | sort_by(.created_at) | reverse | .[0]')" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
