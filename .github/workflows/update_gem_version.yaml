@@ -11,12 +11,12 @@ on:
         description: A path of the file containing the version string to be updated.
         required: true
         type: string
+    secrets:
       pr_approvable_token:
         description: |
           An access token that can approve pull requests.
           NOTICE: secrets.GITHUB_TOKEN cannot be used because the pull request approver must be someone other than the creator.
         required: true
-        type: string
 
 jobs:
   update_gem_version:
