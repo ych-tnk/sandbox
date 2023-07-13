@@ -62,6 +62,7 @@ jobs:
       - update_gem_version
     permissions:
       contents: write
+      pull-requests: write
     with:
       release_version: ${{ needs.prepare_release.outputs.next_release_version }}
       prerelease: ${{ github.event.inputs.release_type != 'regular' }}
