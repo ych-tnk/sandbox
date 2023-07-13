@@ -32,7 +32,7 @@ jobs:
 
       - name: Get release_id of latest release
         id: get_release_id_of_latest_release
-        run: echo "value=${fromJson(steps.get_latest_release.outputs.value)['id']}" >> $GITHUB_OUTPUT
+        run: echo "value=${{ fromJson(steps.get_latest_release.outputs.value)['id'] }}" >> $GITHUB_OUTPUT
 
       - name: Get release_vesion of latest release
         id: get_release_version_of_latest_release
