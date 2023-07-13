@@ -3,8 +3,8 @@ name: Publish release
 on:
   workflow_call:
     inputs:
-      release_id:
-        description: A unique identifier of the release
+      release_version:
+        description: A version of the release
         required: true
         type: string
       prerelease:
@@ -27,15 +27,28 @@ jobs:
 
       - name: Get published flag
         id: get_published_flag
-        run: echo "value=$(gh api /repos/{owner}/{repo}/releases/${{ inputs.release_id }} --jq '.draft | not')" >> $GITHUB_OUTPUT
+        run: |
+          is_published=$(gh api /repos/{owner}/{repo}/releases --jq '.[] | select(.tag_name == "${{ input.release_version }}") | .draft | not')
+          echo "value=$(test "${is_published}" != '' && echo "${is_published}" || echo 'false')"  >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create or update draft release
+        if: steps.get_published_flag.outputs.value == 'false'
+        id: create_or_update_draft_release
+        uses: release-drafter/release-drafter@v5
+        with:
+          config-name: release-drafter.yaml
+          version: ${{ input.release_version }}
+          tag: ${{ input.release_version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish release
         if: steps.get_published_flag.outputs.value == 'false'
         run: |
-          gh api /repos/{owner}/{repo}/releases/${{ inputs.release_id }} \
-            --field release_id=${{ inputs.release_id }} \
+          gh api /repos/{owner}/{repo}/releases/${{ steps.create_or_update_draft_release.outputs.id }} \
+            --field release_id=${{ steps.create_or_update_draft_release.outputs.id }} \
             --field prerelease=${{ inputs.prerelease }} \
             --field draft=false
         env:
