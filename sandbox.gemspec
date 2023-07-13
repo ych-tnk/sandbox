@@ -6,9 +6,10 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 2.7.0'
 
-  spec.summary = 'sandbox'
-  spec.description = 'sandbox'
+  spec.summary = 'summary'
+  spec.description = 'description'
   spec.homepage = 'https://rubygems.pkg.github.com/ych-tnk/sandbox'
+  spec.licenses = ['Nonstandard']
 
   spec.metadata['allowed_push_host'] = 'https://rubygems.pkg.github.com/ych-tnk'
 
