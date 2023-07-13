@@ -28,7 +28,7 @@ jobs:
       - name: Get published flag
         id: get_published_flag
         run: |
-          is_published=$(gh api /repos/{owner}/{repo}/releases --jq '.[] | select(.tag_name == "${{ input.release_version }}") | .draft | not')
+          is_published=$(gh api /repos/{owner}/{repo}/releases --jq '.[] | select(.tag_name == "${{ inputs.release_version }}") | .draft | not')
           echo "value=$(test "${is_published}" != '' && echo "${is_published}" || echo 'false')"  >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -39,7 +39,7 @@ jobs:
         uses: release-drafter/release-drafter@v5
         with:
           config-name: release-drafter.yaml
-          version: ${{ input.release_version }}
+          version: ${{ inputs.release_version }}
           tag: ${{ input.release_version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
