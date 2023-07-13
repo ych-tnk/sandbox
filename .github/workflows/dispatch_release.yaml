@@ -43,7 +43,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   update_gem_version:
-    name: Update gem version
     uses: ./.github/workflows/update_gem_version.yaml
     needs: prepare_release
     permissions:
@@ -75,7 +74,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish_release:
-    name: Publish release
     uses: ./.github/workflows/publish_release.yaml
     needs: create_or_update_draft_release
     permissions:
@@ -86,7 +84,6 @@ jobs:
       prerelease: ${{ github.event.inputs.release_type != 'regular' }}
 
   publish_gem:
-    name: Publish gem
     uses: ./.github/workflows/publish_gem.yaml
     needs: publish_release
     permissions:
