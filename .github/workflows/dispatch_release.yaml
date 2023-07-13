@@ -28,7 +28,7 @@ jobs:
         id: get_latest_release
         run: |
           gh --version
-          gh api /repos/{owner}/{repo}/releases --jq '. | sort_by(.created_at) | reverse | .[0]'
+          gh api /repos/{owner}/{repo}/releases --jq '. | sort_by(.created_at) | reverse'
           echo "value=$(gh api /repos/{owner}/{repo}/releases --jq '. | sort_by(.created_at) | reverse | .[0]')" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
