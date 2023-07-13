@@ -54,7 +54,7 @@ jobs:
     uses: ./.github/workflows/update_gem_version.yaml
     needs: prepare_release
     permissions:
-      contents: write 
+      contents: write
       pull-requests: write
     with:
       version: ${{ needs.prepare_release.outputs.release_version }}
@@ -62,12 +62,28 @@ jobs:
     secrets:
       pr_approvable_token: ${{ secrets.TEST }}
 
+  update_release:
+    runs-on: ubuntu-latest
+    needs:
+      - prepare_release
+      - update_gem_version
+    permissions:
+      contents: write
+    steps:
+      - name: Create or update draft release 
+        uses: release-drafter/release-drafter@v5
+        with:
+          config-name: release-drafter.yaml
+          version-template: ${{ needs.prepare_release.outputs.release_version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   publish_release:
     name: Publish release
     uses: ./.github/workflows/publish_release.yaml
     needs:
       - prepare_release
-      - update_gem_version
+      - update_release
     permissions:
       contents: write
     with:
