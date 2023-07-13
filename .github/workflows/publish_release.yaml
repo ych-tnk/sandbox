@@ -43,6 +43,6 @@ jobs:
 
       - name: Get publieshd tag
         id: get_published_tag
-        run: echo "value=$(gh api /repos/{owner}/{repo}/releases/${{ inputs.release_id }} --jq '.tag_name')
+        run: echo "value=$(gh api /repos/{owner}/{repo}/releases/${{ inputs.release_id }} --jq '.tag_name')"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
