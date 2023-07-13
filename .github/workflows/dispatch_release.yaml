@@ -62,6 +62,7 @@ jobs:
         with:
           version: ${{ steps.get_release_version_of_latest_release.outputs.value }}
           version_file: sandbox.gemspec
+        secrets:
           pr_approvable_token: ${{ secrets.TEST }}
 
       - name: Publish release
