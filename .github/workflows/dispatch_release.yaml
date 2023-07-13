@@ -10,7 +10,7 @@ on:
         options:
           - 'regular'
           - 'pre'
-          - 'migration'
+          - 'migrationtest'
 
 permissions:
   contents: write
@@ -20,8 +20,6 @@ permissions:
 jobs:
   dispatch_release:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -29,6 +27,8 @@ jobs:
       - name: Get latest release
         id: get_latest_release
         run: echo "value=$(gh api /repos/{owner}/{repo}/releases --jq .[0])" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get release_id of latest release
         id: get_release_id_of_latest_release
@@ -49,18 +49,20 @@ jobs:
           release_type=$(test "${prerelease_identifier}" == '' && echo 'regular' || echo "${prerelease_identifier}")
           echo "value=${release_type}" >> $GITHUB_OUTPUT
 
-      - name: Check if release is possible
+      - name: Check if release_vesion has already been published
         run: |
-          is_latest_release_published="${{ fromJson(steps.get_latest_release.outputs.value)['draft'] != 'true' }}
-          is_no_change_release_type="${{ steps.get_release_type_of_latest_release.outputs.value == inputs.release_type }}
-          ${is_latest_release_published} && ${is_no_change_release_type} && exit 1
+          gh api /repos/{owner}/{repo}/releases -q '.[] | select(.draft != true) | .tag_name' \
+          | test $(grep --line-regexp --count "${{ steps.get_release_version_of_latest_release.outputs.value }}") -eq 0 \ \
+          || (echo "${{ steps.get_release_version_of_latest_release.outputs.value }} is already published" && exit 1)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update gem version
-        if: fromJson(steps.get_latest_release.outputs.value)['draft'] == 'true'
         uses: ./.github/workflows/update_gem_version.yaml
         with:
           version: ${{ steps.get_release_version_of_latest_release.outputs.value }}
           version_file: sandbox.gemspec
+          pr_approvable_token: ${{ secrets.TEST }}
 
       - name: Publish release
         uses: ./.github/workflows/publish_release.yaml
