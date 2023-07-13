@@ -1,10 +1,10 @@
 Gem::Specification.new do |spec|
   spec.name = 'sandbox'
-  spec.version = '2.2.2.pre'
+  spec.version = ''
   spec.authors = ['Yuichi Tanaka']
   spec.email = ['yuichi-tanaka@c-fo.com']
 
-  spec.required_ruby_version = '>= 2.7.0'
+  spec.required_ruby_version = ''
 
   spec.summary = 'sandbox'
   spec.description = 'sandbox'
