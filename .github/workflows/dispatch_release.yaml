@@ -41,14 +41,6 @@ jobs:
           release_vesion=${tag_name}${{ github.event.inputs.release_type != 'regular' && format('-{0}', github.event.inputs.release_type) || '' }}
           echo "value=${release_vesion}" >> $GITHUB_OUTPUT
 
-      - name: Get release_type of latest release
-        id: get_release_type_of_latest_release
-        run: |
-          tag_name=${{ fromJson(steps.get_latest_release.outputs.value)['tag_name'] }}
-          prerelease_identifier=$(echo "${tag_name}" | sed -e 's/^v//' -e 's/^[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+-\?\(.*\)$/\1/')
-          release_type=$(test "${prerelease_identifier}" == '' && echo 'regular' || echo "${prerelease_identifier}")
-          echo "value=${release_type}" >> $GITHUB_OUTPUT
-
       - name: Check if release_vesion has already been published
         run: |
           gh api /repos/{owner}/{repo}/releases -q '.[] | select(.draft != true) | .tag_name' \
