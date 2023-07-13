@@ -27,7 +27,7 @@ jobs:
 
       - name: Get published flag
         id: get_published_flag
-        run: echo "value=$(gh api /repos/{owner}/{repo}/releases/${{ inputs.release_id }} --jq '.draft')" >> $GITHUB_OUTPUT
+        run: echo "value=$(gh api /repos/{owner}/{repo}/releases/${{ inputs.release_id }} --jq '.draft' | not)" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
