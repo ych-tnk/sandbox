@@ -51,7 +51,9 @@ jobs:
 
       - name: Approve pull request
         if: ${{ steps.create_bump_pr.outputs.pull-request-operation }} != ''
-        run: gh pr review --approve ${{ steps.create_bump_pr.outputs.pull-request-url }}
+        run: |
+          echo "${{ steps.create_bump_pr.outputs.pull-request-operation }}"
+          gh pr review --approve ${{ steps.create_bump_pr.outputs.pull-request-url }}
         env:
           GITHUB_TOKEN: ${{ secrets.pr_approvable_token }}
 
