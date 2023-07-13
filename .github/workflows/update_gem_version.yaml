@@ -62,8 +62,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Checkout head
-        run:  git checkout HEAD^
+      - name: Pull main branch
+        run:  git pull origin main
 
       - name: Create or update draft release
         id: create_or_update_draft_release
