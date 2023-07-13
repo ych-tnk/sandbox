@@ -1,18 +1,22 @@
 name: Publish gem
 
 on:
-  release:
-    types: [published]
+  workflow_call:
+    inputs:
+      gem_name:
+        description: A name of the gem to be published
+        required: true
+        type: string
 
 jobs:
   publish_gem:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+      
+      - name: Pull origin
+        run: git pull origin
 
       - name: Setup ruby
         uses: ruby/setup-ruby@v1
@@ -28,6 +32,6 @@ jobs:
 
       - name: Build and push gem
         run: |
-          rm -f sandbox-*.gem
-          gem build sandbox.gemspec
-          gem push --key github --host https://rubygems.pkg.github.com/ych-tnk sandbox-*.gem
+          rm -f ${{ inputs.gem_name }}-*.gem
+          gem build ${{ inputs.gem_name }}.gemspec
+          gem push --key github --host https://rubygems.pkg.github.com/ych-tnk ${{ inputs.gem_name }}-*.gem
