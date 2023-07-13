@@ -7,8 +7,9 @@ on:
         description: A valid semantic version.
         required: true
         type: string
-      version_file:
-        description: A path of the file containing the version string to be updated.
+      gemspec_path:
+        description: A path of the gemspec file.
+         containing the version string to be updated.
         required: true
         type: string
     secrets:
@@ -17,20 +18,10 @@ on:
           An access token that can approve pull requests.
           NOTICE: secrets.GITHUB_TOKEN cannot be used because the pull request approver must be someone other than the creator.
         required: true
-    outputs:
-      created_or_updated_draft_release_id:
-        description: The id of the draft release created or updated by updating the gem version.
-        value: ${{ jobs.update_gem_version.outputs.created_or_updated_draft_release_id }}
-      created_or_updated_draft_release_version:
-        description: THe version of the draft release created or updated by updating the gem version.
-        value: ${{ jobs.update_gem_version.outputs.created_or_updated_draft_release_version }}
 
 jobs:
   update_gem_version:
     runs-on: ubuntu-latest
-    outputs:
-      created_or_updated_draft_release_id: ${{ steps.create_or_update_draft_release.outputs.id }}
-      created_or_updated_draft_release_version: ${{ steps.create_or_update_draft_release.outputs.tag_name }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -38,7 +29,7 @@ jobs:
       - name: Update gem version
         run: |
           gem_format_version=$(echo ${{ inputs.version }} | sed -e 's/^v//' -e 's/^\([[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\)[-]\?\(.\+\)$/\1.\2/')
-          sed -i -e "s/\([[:blank:]]*.*\.\?[^_]version[[:blank:]]*=[[:blank:]]*['\"]\).*\(['\"].*\)/\1${gem_format_version}\2/i" ${{ inputs.version_file }}
+          sed -i -e "s/\([[:blank:]]*.*\.\?[^_]version[[:blank:]]*=[[:blank:]]*['\"]\).*\(['\"].*\)/\1${gem_format_version}\2/i" ${{ inputs.gemspec_path }}
 
       - name: Create bump pull request
         id: create_bump_pr

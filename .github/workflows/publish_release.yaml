@@ -15,21 +15,29 @@ on:
         description: A flag whether the release is pre-release or not
         required: true
         type: boolean
+    outputs:
+      published_tag: ${{ jobs.publish_release.outputs.published_tag }}
 
 jobs:
   publish_release:
     runs-on: ubuntu-latest
+    outputs:
+      published_tag: ${{ steps.publish_release.outputs.tag_name }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Publish release
+        id: publish_release
         run: |
+          res=$(
           gh api /repos/{owner}/{repo}/releases/${{ inputs.release_id }} \
             --field release_id=${{ inputs.release_id }} \
             --field name=${{ inputs.release_version }} \
             --field tag_name=${{ inputs.release_version }} \
             --field prerelease=${{ inputs.prerelease }} \
             --field draft=false
+          )
+          echo "tag_name=$(echo ${res} | jq '.tag_name' )"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
