@@ -55,31 +55,15 @@ jobs:
     secrets:
       pr_approvable_token: ${{ secrets.TEST }}
 
-  create_or_update_draft_release:
-    runs-on: ubuntu-latest
+  publish_release:
+    uses: ./.github/workflows/publish_release.yaml
     needs:
       - prepare_release
       - update_gem_version
-    outputs:
-      created_or_updated_draft_release_id: ${{ steps.create_or_update_draft_release.outputs.id }}
-    steps:
-      - name: Create or update draft release
-        id: create_or_update_draft_release
-        uses: release-drafter/release-drafter@v5
-        with:
-          config-name: release-drafter.yaml
-          version: ${{ needs.prepare_release.outputs.next_release_version }}
-          tag: ${{ needs.prepare_release.outputs.next_release_version }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  publish_release:
-    uses: ./.github/workflows/publish_release.yaml
-    needs: create_or_update_draft_release
     permissions:
       contents: write
     with:
-      release_id: ${{ needs.create_or_update_draft_release.outputs.created_or_updated_draft_release_id }}
+      release_version: ${{ needs.prepare_release.outputs.next_release_version }}
       prerelease: ${{ github.event.inputs.release_type != 'regular' }}
 
   publish_gem:
