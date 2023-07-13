@@ -40,7 +40,7 @@ jobs:
         with:
           config-name: release-drafter.yaml
           version: ${{ inputs.release_version }}
-          tag: ${{ input.release_version }}
+          tag: ${{ inputs.release_version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
