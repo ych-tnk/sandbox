@@ -17,6 +17,13 @@ on:
           An access token that can approve pull requests.
           NOTICE: secrets.GITHUB_TOKEN cannot be used because the pull request approver must be someone other than the creator.
         required: true
+    outputs:
+      created_or_updated_draft_release_id:
+        description: The id of the draft release created or updated by updating the gem version.
+        value: ${{ jobs.update_gem_version.outputs.created_or_updated_draft_release_id }}
+      created_or_updated_draft_release_version:
+        description: THe version of the draft release created or updated by updating the gem version.
+        value: ${{ jobs.update_gem_version.outputs.created_or_updated_draft_release_version }}
 
 jobs:
   update_gem_version:
@@ -33,8 +40,8 @@ jobs:
           gem_format_version=$(echo ${{ inputs.version }} | sed -e 's/^v//' -e 's/^\([[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\)[-]\?\(.\+\)$/\1.\2/')
           sed -i -e "s/\([[:blank:]]*.*\.\?[^_]version[[:blank:]]*=[[:blank:]]*['\"]\).*\(['\"].*\)/\1${gem_format_version}\2/i" ${{ inputs.version_file }}
 
-      - name: Create pull request
-        id: create_bump_up_pr
+      - name: Create bump pull request
+        id: create_bump_pr
         uses: peter-evans/create-pull-request@v5
         with:
           title: Update gem version to ${{ inputs.version }}
@@ -43,16 +50,19 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Approve pull request
-        run: gh pr review --approve ${{ steps.create_bump_up_pr.outputs.pull-request-url }}
+        if: ${{ steps.create_bump_pr.pull-request-operation }} != ''
+        run: gh pr review --approve ${{ steps.create_bump_pr.outputs.pull-request-url }}
         env:
           GITHUB_TOKEN: ${{ secrets.pr_approvable_token }}
 
       - name: Merge pull request
-        run: gh pr merge --merge --auto ${{ steps.create_bump_up_pr.outputs.pull-request-url }}
+        if: ${{ steps.create_bump_pr.pull-request-operation }} != ''
+        run: gh pr merge --merge --auto ${{ steps.create_bump_pr.outputs.pull-request-url }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create or update draft release 
+        if: ${{ steps.create_bump_pr.pull-request-operation }} != ''
         id: create_or_update_draft_release
         uses: release-drafter/release-drafter@v5
         with:
