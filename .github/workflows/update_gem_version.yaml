@@ -21,6 +21,8 @@ on:
 jobs:
   update_gem_version:
     runs-on: ubuntu-latest
+    outputs:
+      updated_release: ${{ steps.create_or_update_draft_release.outputs }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -46,5 +48,14 @@ jobs:
 
       - name: Merge pull request
         run: gh pr merge --merge --auto ${{ steps.create_bump_up_pr.outputs.pull-request-url }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create or update draft release 
+        id: create_or_update_draft_release
+        uses: release-drafter/release-drafter@v5
+        with:
+          config-name: release-drafter.yaml
+          version-template: ${{ inputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
