@@ -1,0 +1,32 @@
+name: Publish release
+
+inputs:
+  release_id:
+    description: A unique identifier of the release
+    required: true
+    type: string
+  release_version:
+    description: A version of the release
+    required: true
+    type: string
+  prerelease:
+    description: A flag whether the release is pre-release or not
+    required: true
+    type: boolean
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Publish release
+      run: |
+        gh api /repos/{owner}/{repo}/releases/${{ inputs.release_id }} \
+          --field release_id=${{ inputs.release_id }} \
+          --field name=${{ inputs.release_version }} \
+          --field tag_name=${{ inputs.release_version }} \
+          --field prerelease=${{ inputs.prerelease }} \
+          --field draft=false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

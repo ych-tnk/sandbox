@@ -58,21 +58,20 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update gem version
-        uses: ./.github/workflows/update_gem_version.yaml
+        uses: ./.github/workflows/actions/release/update_gem_version.yaml
         with:
           version: ${{ steps.get_release_version_of_latest_release.outputs.value }}
           version_file: sandbox.gemspec
-        secrets:
           pr_approvable_token: ${{ secrets.TEST }}
 
       - name: Publish release
-        uses: ./.github/workflows/publish_release.yaml
+        uses: ./.github/workflows/actions/release/publish_release.yaml
         with:
           release_id: ${{ steps.get_release_id_of_latest_release.outputs.value }}
           release_vesion: ${{ steps.get_release_version_of_latest_release.outputs.value }}
           prelerease: ${{ github.event.inputs.release_type != 'regular' }}
 
       - name: Publish gem
-        uses: ./.github/workflows/publish_gem.yaml
+        uses: /.github/workflows/actions/release/publish_gem.yaml
         with:
           gem_name: sandbox
