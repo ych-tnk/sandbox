@@ -45,9 +45,10 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           title: Update gem version to ${{ inputs.version }}
-          add-paths: ${{ inputs.version_file }}
-          commit-message: "Bump to ${{ inputs.version }}"
-          token: ${{ secrets.GITHUB_TOKEN }}
+          labels: |
+            version/patch
+            category/misc
+            武将/秀吉:hideyoshi
 
       - name: Approve pull request
         if: steps.create_bump_pr.outputs.pull-request-operation != ''
