@@ -50,15 +50,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Approve pull request
-        if: ${{ steps.create_bump_pr.outputs.pull-request-operation }} != ''
-        run: |
-          echo "${{ steps.create_bump_pr.outputs.pull-request-operation }}"
-          gh pr review --approve ${{ steps.create_bump_pr.outputs.pull-request-url }}
+        if: steps.create_bump_pr.outputs.pull-request-operation != ''
+        run: gh pr review --approve ${{ steps.create_bump_pr.outputs.pull-request-url }}
         env:
           GITHUB_TOKEN: ${{ secrets.pr_approvable_token }}
 
       - name: Merge pull request
-        if: ${{ steps.create_bump_pr.outputs.pull-request-operation }} != ''
+        if: steps.create_bump_pr.outputs.pull-request-operation != ''
         run: gh pr merge --merge --auto ${{ steps.create_bump_pr.outputs.pull-request-url }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
