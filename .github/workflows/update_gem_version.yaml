@@ -50,19 +50,18 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Approve pull request
-        if: ${{ steps.create_bump_pr.pull-request-operation }} != ''
+        if: ${{ steps.create_bump_pr.outputs.pull-request-operation }} != ''
         run: gh pr review --approve ${{ steps.create_bump_pr.outputs.pull-request-url }}
         env:
           GITHUB_TOKEN: ${{ secrets.pr_approvable_token }}
 
       - name: Merge pull request
-        if: ${{ steps.create_bump_pr.pull-request-operation }} != ''
+        if: ${{ steps.create_bump_pr.outputs.pull-request-operation }} != ''
         run: gh pr merge --merge --auto ${{ steps.create_bump_pr.outputs.pull-request-url }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create or update draft release 
-        if: ${{ steps.create_bump_pr.pull-request-operation }} != ''
+      - name: Create or update draft release
         id: create_or_update_draft_release
         uses: release-drafter/release-drafter@v5
         with:
