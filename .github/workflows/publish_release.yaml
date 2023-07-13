@@ -16,7 +16,9 @@ on:
         required: true
         type: boolean
     outputs:
-      published_tag: ${{ jobs.publish_release.outputs.published_tag }}
+      published_tag:
+        description: The tag of the published release
+        value: ${{ jobs.publish_release.outputs.published_tag }}
 
 jobs:
   publish_release:
