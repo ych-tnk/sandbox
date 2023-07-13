@@ -22,7 +22,8 @@ jobs:
   update_gem_version:
     runs-on: ubuntu-latest
     outputs:
-      updated_release: ${{ steps.create_or_update_draft_release.outputs }}
+      created_or_updated_draft_release_id: ${{ steps.create_or_update_draft_release.outputs.id }}
+      created_or_updated_draft_release_version: ${{ steps.create_or_update_draft_release.outputs.tag_name }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
