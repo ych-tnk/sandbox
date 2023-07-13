@@ -65,7 +65,7 @@ jobs:
     uses: ./.github/workflows/update_gem_version.yaml
     needs: prepare_release
     with:
-      version: ${{ needs.prepare_release.release_version }}
+      version: ${{ needs.prepare_release.outputs.release_version }}
       version_file: sandbox.gemspec
     secrets:
       pr_approvable_token: ${{ secrets.TEST }}
@@ -77,8 +77,8 @@ jobs:
       - prepare_release
       - update_gem_version
     with:
-      release_id: ${{ needs.prepare_release.release_id }}
-      release_version: ${{ needs.prepare_release.release_version }}
+      release_id: ${{ needs.prepare_release.outputs.release_id }}
+      release_version: ${{ needs.prepare_release.outputs.release_version }}
       prerelease: ${{ github.event.inputs.release_type != 'regular' }}
 
   publish_gem:
