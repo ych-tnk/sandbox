@@ -44,7 +44,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   update_gem_version:
-    uses: ./.github/workflows/update_gem_version.yaml
+    uses: ./.github/workflows/_update_gem_version.yaml
     needs: prepare_release
     permissions:
       contents: write
@@ -56,7 +56,7 @@ jobs:
       pr_approvable_token: ${{ secrets.TEST }}
 
   publish_release:
-    uses: ./.github/workflows/publish_release.yaml
+    uses: ./.github/workflows/_publish_release.yaml
     needs:
       - prepare_release
       - update_gem_version
@@ -68,7 +68,7 @@ jobs:
       prerelease: ${{ github.event.inputs.release_type != 'regular' }}
 
   publish_gem:
-    uses: ./.github/workflows/publish_gem.yaml
+    uses: ./.github/workflows/_publish_gem.yaml
     needs: publish_release
     permissions:
       contents: read

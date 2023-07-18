@@ -1,4 +1,4 @@
-name: Update gem version
+name: _Update gem version
 
 on:
   workflow_call:
