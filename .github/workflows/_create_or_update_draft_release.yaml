@@ -7,7 +7,6 @@ on:
         description: The version to be associated with the GitHub release that's created or updated.
         required: false
         type: string
-        default: ''
 
 jobs:
   crate_or_update_draft_release:
