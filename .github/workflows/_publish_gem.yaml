@@ -1,4 +1,4 @@
-name: Publish gem
+name: _Publish gem
 
 on:
   workflow_call:
