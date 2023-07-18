@@ -1,24 +1,19 @@
 name: Create or update draft release 
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-    types:
-      - opened
-      - reopened
-      - synchronize
-
-permissions:
-  contents: write
-  pull-requests: read
+  workflow_call:
+    inputs:
+      version:
+        description: The version to be associated with the GitHub release that's created or updated.
+        required: false
+        type: string
 
 jobs:
   crate_or_update_draft_release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -27,5 +22,7 @@ jobs:
         uses: release-drafter/release-drafter@v5
         with:
           config-name: release-drafter.yaml
+          version: ${{ inputs.version }}
+          tag: ${{ inputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,24 +1,16 @@
 name: Auto assign labels to pull requests
 
 on:
-  pull_request:
-    branches:
-      - main
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - edited
-
-permissions:
-  contents: read
-  pull-requests: write
-  statuses: write
-  checks: write
+  workflow_call:
 
 jobs:
   auto_assign_labels_to_pr:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      statuses: write
+      checks: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3

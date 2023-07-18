@@ -1,20 +1,14 @@
 name: Sync labels
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - .github/workflows/sync_labels.yaml
-      - .github/labels.yaml
-
-permissions:
-  contents: read
-  issues: write
+  workflow_call:
 
 jobs:
   sync_labels:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
