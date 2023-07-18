@@ -1,0 +1,78 @@
+name: Dispatch release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: Select a release type
+        required: true
+        type: choice
+        options:
+          - 'regular'
+          - 'pre'
+          - 'migrationtest'
+
+jobs:
+  prepare_release:
+    runs-on: ubuntu-latest
+    outputs:
+      next_release_version: ${{ steps.resolve_next_release_version.outputs.value }}
+    permissions:
+      # write permission is required to obtain draft releases.
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Resolve next release vesion
+        id: resolve_next_release_version
+        run: |
+          latest_release_version=$(gh api /repos/{owner}/{repo}/releases --jq '.[0].tag_name')
+          latest_release_version_core=$(echo "${latest_release_version}" | sed -e 's/^\(v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\).*$/\1/')
+          next_release_vesion=${latest_release_version_core}${{ github.event.inputs.release_type != 'regular' && format('-{0}', github.event.inputs.release_type) || '' }}
+          echo "value=${next_release_vesion}" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if next release vesion has already been published
+        run: |
+          gh api /repos/{owner}/{repo}/releases -q '.[] | select(.draft != true) | .tag_name' \
+          | test $(grep --line-regexp --count "${{ steps.resolve_next_release_version.outputs.value }}") -eq 0 \
+          || (echo "${{ steps.resolve_next_release_version.outputs.value }} is already published" && exit 1)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  update_gem_version:
+    uses: ./.github/workflows/on_workflow_call/update_gem_version.yaml
+    needs: prepare_release
+    permissions:
+      contents: write
+      pull-requests: write
+    with:
+      version: ${{ needs.prepare_release.outputs.next_release_version }}
+      gemspec_path: sandbox.gemspec
+    secrets:
+      pr_approvable_token: ${{ secrets.TEST }}
+
+  publish_release:
+    uses: ./.github/workflows/on_workflow_call/publish_release.yaml
+    needs:
+      - prepare_release
+      - update_gem_version
+    permissions:
+      contents: write
+      pull-requests: write
+    with:
+      release_version: ${{ needs.prepare_release.outputs.next_release_version }}
+      prerelease: ${{ github.event.inputs.release_type != 'regular' }}
+
+  publish_gem:
+    uses: ./.github/workflows/on_workflow_call/publish_gem.yaml
+    needs: publish_release
+    permissions:
+      contents: read
+      packages: write
+    with:
+      repository_tag: ${{ needs.publish_release.outputs.published_tag }}
+      gemspec_path: sandbox.gemspec
