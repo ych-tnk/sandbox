@@ -12,4 +12,4 @@ on:
 
 jobs:
   auto_assign_labels_to_pr:
-    uses: .github/workflows/_auto_assign_labels_to_pr.yaml
+    uses: ./.github/workflows/_auto_assign_labels_to_pr.yaml
