@@ -1,0 +1,32 @@
+name: On push
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  check_file_changed:
+    runs-on: ubuntu-latest
+    outputs:
+      labels: ${{ steps.check_file_changed.outputs.labels }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Chack file changed
+        uses: dorny/paths-filter@v2
+        id: check_file_changed
+        with:
+          filters: |
+            labels:
+              - .github/workflows/sync_labels.yaml
+              - .github/labels.yaml
+
+  sync_labesl:
+    needs: check_file_changed
+    if: needs.check_file_changed.outputs.labels == 'true'
+    uses: ./.github/workflows/on_workflow_call/sync_labels.yaml
+
+  crate_or_update_draft_release:
+    uses: ./.github/workflows/on_workflow_call/crate_or_update_draft_release.yaml

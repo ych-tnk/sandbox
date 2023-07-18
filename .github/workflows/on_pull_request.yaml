@@ -1,0 +1,15 @@
+name: On pull request
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - edited
+
+jobs:
+  auto_assign_labels_to_pr:
+    uses: ./.github/workflows/on_workflow_call/auto_assign_labels_to_pr.yaml
