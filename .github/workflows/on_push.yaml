@@ -26,7 +26,7 @@ jobs:
   sync_labesl:
     needs: check_file_changed
     if: needs.check_file_changed.outputs.labels == 'true'
-    uses: .github/workflows/_sync_labels.yaml
+    uses: ./.github/workflows/_sync_labels.yaml
 
   crate_or_update_draft_release:
-    uses: .github/workflows/_crate_or_update_draft_release.yaml
+    uses: ./.github/workflows/_crate_or_update_draft_release.yaml
