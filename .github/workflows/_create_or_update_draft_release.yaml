@@ -1,4 +1,4 @@
-name: Create or update draft release 
+name: _Create or update draft release 
 
 on:
   workflow_call:

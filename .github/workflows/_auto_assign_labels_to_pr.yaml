@@ -1,4 +1,4 @@
-name: Auto assign labels to pull requests
+name: _Auto assign labels to pull requests
 
 on:
   workflow_call:

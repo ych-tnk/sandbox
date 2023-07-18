@@ -12,4 +12,4 @@ on:
 
 jobs:
   auto_assign_labels_to_pr:
-    uses: ych-tnk/sandbox/.github/workflows/on_workflow_call/auto_assign_labels_to_pr.yaml@main
+    uses: .github/workflows/_auto_assign_labels_to_pr.yaml
