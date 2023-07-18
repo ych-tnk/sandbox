@@ -26,7 +26,7 @@ jobs:
   sync_labesl:
     needs: check_file_changed
     if: needs.check_file_changed.outputs.labels == 'true'
-    uses: ych-tnk/sandbox/.github/workflows/on_workflow_call/sync_labels.yaml@main
+    uses: .github/workflows/_sync_labels.yaml
 
   crate_or_update_draft_release:
-    uses: ych-tnk/sandbox//.github/workflows/on_workflow_call/crate_or_update_draft_release.yaml@main
+    uses: .github/workflows/_crate_or_update_draft_release.yaml
