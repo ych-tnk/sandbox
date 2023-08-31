@@ -14,18 +14,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Chack file changed
+      - name: Chack sync label files changed
         uses: dorny/paths-filter@v2
-        id: check_file_changed
+        id: check_sync_label_files_changed
         with:
           filters: |
             labels:
               - .github/workflows/sync_labels.yaml
               - .github/labels.yaml
 
-  sync_labesl:
+  sync_label:
     needs: check_file_changed
-    if: needs.check_file_changed.outputs.labels == 'true'
+    if: needs.check_sync_label_files_changed.outputs.labels == 'true'
     uses: ./.github/workflows/_sync_labels.yaml
 
   crate_or_update_draft_release:
