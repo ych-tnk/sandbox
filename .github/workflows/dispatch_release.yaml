@@ -50,7 +50,7 @@ jobs:
 
       - name: Check if there are unreleased differences or broader release
         run: |
-          is_diff_exsists=$(test -n "{{ steps.get_differences_between_latest_release_version_and_head.outputs.value }}" && echo 'true' || echo 'false')
+          is_diff_exsists=$(test -n "${{ steps.get_differences_between_latest_release_version_and_head.outputs.value }}" && echo 'true' || echo 'false')
           is_broader_release=$(test "${{ steps.get_latest_release_type.outputs.value }}" = 'rc' -a "${{ github.event.inputs.release_type }}" == 'ga' && echo 'true' || echo 'false')
           test "${is_diff_exsists}" == 'true' -o "${is_broader_release}" == 'true' \
           || (echo "To publish a new release, it must either have unreleased differences or a broader release" && exit 1)
