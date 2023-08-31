@@ -8,9 +8,8 @@ on:
         required: true
         type: choice
         options:
-          - 'regular'
-          - 'pre'
-          - 'migrationtest'
+          - 'ga'
+          - 'rc'
 
 jobs:
   prepare_release:
@@ -25,15 +24,39 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Get latst release vesion
+        id: get_latest_release_version
+        run: |
+          latest_release_version=$(gh api /repos/{owner}/{repo}/releases --jq 'first(.[] | select(.draft != true)).tag_name')
+          echo "value=${latest_release_version}" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get latst release type
+        id: latest_release_type
+        run: |
+          latest_release_type=$(echo "${{ steps.get_latest_release_version.output.value }}" | sed -e 's/^v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\-\(.*\)\..*$/\1/')
+          echo "value=${latest_release_type}" >> $GITHUB_OUTPUT
+
+      - name: Get differences between latest release version and HEAD
+        id: get_differences_between_latest_release_version_and_head
+        run: |
+          diff="$(git diff ${{ steps.get_latest_release_version.output.value }}...)"
+          echo "value=${diff}" >> $GITHUB_OUTPUT
+
+      - name: Check if there are unreleased differences or broader release
+        run: |
+          is_diff_exsists=$(test -n "{{ steps.get_differences_between_latest_release_version_and_head.output.value }}")
+          is_broader_release=$(test "${{ steps.latest_release_type.output.value }}" = 'rc' -a "${{ github.event.inputs.release_type }}" == 'ga' && echo 'true' || echo 'false')
+          test "${is_diff_exsists}" == 'true' -o "${is_broader_release}" == 'true' \
+          || (echo "To publish a new release, it must either have unreleased differences or a broader release" && exit 1)
+
       - name: Resolve next release vesion
         id: resolve_next_release_version
         run: |
-          latest_release_version=$(gh api /repos/{owner}/{repo}/releases --jq '.[0].tag_name')
-          latest_release_version_core=$(echo "${latest_release_version}" | sed -e 's/^\(v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\).*$/\1/')
-          next_release_vesion=${latest_release_version_core}${{ github.event.inputs.release_type != 'regular' && format('-{0}', github.event.inputs.release_type) || '' }}
+          latest_release_version_core=$(echo "${{ steps.get_latest_release_version.output.value }}" | sed -e 's/^\(v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\).*$/\1/')
+          next_release_vesion=${latest_release_version_core}${{ github.event.inputs.release_type != 'ga' && format('-{0}', github.event.inputs.release_type) || '' }}
           echo "value=${next_release_vesion}" >> $GITHUB_OUTPUT
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check if next release vesion has already been published
         run: |
@@ -65,7 +88,7 @@ jobs:
       pull-requests: write
     with:
       release_version: ${{ needs.prepare_release.outputs.next_release_version }}
-      prerelease: ${{ github.event.inputs.release_type != 'regular' }}
+      prerelease: ${{ github.event.inputs.release_type != 'ga' }}
 
   publish_gem:
     uses: ./.github/workflows/_publish_gem.yaml
