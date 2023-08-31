@@ -33,9 +33,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get latst release type
-        id: latest_release_type
+        id: get_latest_release_type
         run: |
-          latest_release_type=$(echo "${{ steps.get_latest_release_version.output.value }}" | sed -e 's/^v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\-\(.*\)\..*$/\1/')
+          pre_release_identifier=$(echo "${{ steps.get_latest_release_version.output.value }}" | sed -e 's/^v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+-\?\([^.]*\).*$/\1/')
+          latest_release_type="${pre_release_identifier:-ga}"
           echo "value=${latest_release_type}" >> $GITHUB_OUTPUT
 
       - name: Get differences between latest release version and HEAD
@@ -46,8 +47,8 @@ jobs:
 
       - name: Check if there are unreleased differences or broader release
         run: |
-          is_diff_exsists=$(test -n "{{ steps.get_differences_between_latest_release_version_and_head.output.value }}")
-          is_broader_release=$(test "${{ steps.latest_release_type.output.value }}" = 'rc' -a "${{ github.event.inputs.release_type }}" == 'ga' && echo 'true' || echo 'false')
+          is_diff_exsists=$(test -n "{{ steps.get_differences_between_latest_release_version_and_head.output.value }}" && echo 'true' || echo 'false')
+          is_broader_release=$(test "${{ steps.get_latest_release_type.output.value }}" = 'rc' -a "${{ github.event.inputs.release_type }}" == 'ga' && echo 'true' || echo 'false')
           test "${is_diff_exsists}" == 'true' -o "${is_broader_release}" == 'true' \
           || (echo "To publish a new release, it must either have unreleased differences or a broader release" && exit 1)
 
