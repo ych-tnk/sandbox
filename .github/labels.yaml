@@ -31,17 +31,3 @@
 - name: category/misc
   description: Miscellaneous。その他。
   color: cfd3d7
-
-# bushou labels
-- name: 武将/信長:nobunaga
-  description: 短期マジ価値PR。機能追加・改善。
-  color: 88dd5d
-- name: 武将/秀吉:hideyoshi
-  description: 中期マジ価値PR。開発効率向上、運用効率向上、リファクタ、ドキュメンテーション。
-  color: fbca04
-- name: 武将/家康:ieyasu
-  description: リリース後:保守PR。本番環境に流出した不具合の修正。
-  color: e99695
-- name: 武将/綱吉:tunayoshi
-  description: リリース前:保守PR。QAやレビューで発見された不具合の修正。
-  color: 1d76db
