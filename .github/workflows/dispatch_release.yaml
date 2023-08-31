@@ -45,7 +45,7 @@ jobs:
       - name: Get differences between latest release version and HEAD
         id: get_differences_between_latest_release_version_and_head
         run: |
-          diff="$(git diff --name-only ${{ steps.get_latest_release_version.outputs.value }}...)"
+          diff="$(git diff --shortstat ${{ steps.get_latest_release_version.outputs.value }}...)"
           echo "value=${diff}" >> $GITHUB_OUTPUT
 
       - name: Check if there are unreleased differences or broader release
