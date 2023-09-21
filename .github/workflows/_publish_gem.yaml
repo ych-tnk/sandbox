@@ -28,7 +28,6 @@ on:
           An access token that can create pull requests.
           NOTICE: secrets.GITHUB_TOKEN cannot be used because the pull request approver must be someone other than the creator.
         required: true
-        type: string
 
 jobs:
   publish_gem:
