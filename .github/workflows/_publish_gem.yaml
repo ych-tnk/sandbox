@@ -133,6 +133,6 @@ jobs:
       - name: Build and push gem
         if: steps.check_gem_on_push_host.outputs.pushed == 'false'
         run: |
-          git pull
+          git pull --no-tags
           gem build ${{ inputs.gemspec_path }}
           gem push --key github --host https://rubygems.pkg.github.com/ych-tnk ${{ steps.get_publish_gem.outputs.name }}-${{ steps.get_publish_gem.outputs.version }}.gem
