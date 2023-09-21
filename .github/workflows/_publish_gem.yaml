@@ -73,12 +73,25 @@ jobs:
           fi
           echo "pushed=${pushed}" >> $GITHUB_OUTPUT
 
+      - name: Check gem version
+        id: check_gem_vesion
+        run: |
+          updated="$(test -n "$(grep "[[:blank:]]*.*\.\?[^_]version[[:blank:]]*=[[:blank:]]*'${{ steps.get_publish_gem.outputs.version }}'" ${{ inputs.gemspec_path }})" && echo 'true' || echo 'false')"
+          if [ "${updated}" == 'true' ]; then
+             echo '::warning::The gem version update skipped because the gem version has already been updated.'
+          fi
+          echo "updated=${updated}" >> $GITHUB_OUTPUT
+
       - name: Update gem version
-        if: steps.check_gem_on_push_host.outputs.pushed == 'false'
-        run: sed -i -e "s/\([[:blank:]]*.*\.\?[^_]version[[:blank:]]*=[[:blank:]]*['\"]\).*\(['\"].*\)/\1 ${{ steps.get_publish_gem.outputs.version }}\2/i" ${{ inputs.gemspec_path }}
+        if: |
+          steps.check_gem_on_push_host.outputs.pushed == 'false' &&
+          steps.check_gem_vesion.outputs.updated == 'false'
+        run: sed -i -e "s/\([[:blank:]]*.*\.\?[^_]version[[:blank:]]*=[[:blank:]]*['\"]\).*\(['\"].*\)/\1${{ steps.get_publish_gem.outputs.version }}\2/i" ${{ inputs.gemspec_path }}
 
       - name: Create bump pull request
-        if: steps.check_gem_on_push_host.outputs.pushed == 'false'
+        if: |
+          steps.check_gem_on_push_host.outputs.pushed == 'false' &&
+          steps.check_gem_vesion.outputs.updated == 'false'
         id: create_bump_pr
         uses: peter-evans/create-pull-request@v5
         with:
@@ -91,6 +104,7 @@ jobs:
       - name: Approve pull request
         if: |
           steps.check_gem_on_push_host.outputs.pushed == 'false' &&
+          steps.check_gem_vesion.outputs.updated == 'false' &&
           steps.create_bump_pr.outputs.pull-request-operation != ''
         run: gh pr review --approve ${{ steps.create_bump_pr.outputs.pull-request-url }}
         env:
@@ -99,6 +113,7 @@ jobs:
       - name: Wait check complete
         if: |
           steps.check_gem_on_push_host.outputs.pushed == 'false' &&
+          steps.check_gem_vesion.outputs.updated == 'false' &&
           steps.create_bump_pr.outputs.pull-request-operation != ''
         run: |
           sleep ${{ inputs.checks_watch_start_period }}
@@ -109,6 +124,7 @@ jobs:
       - name: Merge pull request
         if: |
           steps.check_gem_on_push_host.outputs.pushed == 'false' &&
+          steps.check_gem_vesion.outputs.updated == 'false' &&
           steps.create_bump_pr.outputs.pull-request-operation != ''
         run: gh pr merge --merge ${{ steps.create_bump_pr.outputs.pull-request-url }}
         env:
@@ -118,4 +134,4 @@ jobs:
         if: steps.check_gem_on_push_host.outputs.pushed == 'false'
         run: |
           gem build ${{ inputs.gemspec_path }}
-          gem push --key github --host https://rubygems.pkg.github.com/ych-tnk ${{ steps.get_publish_gem.outputs.value }}-${{ steps.get_publish_gem.outputs.value }}.gem
+          gem push --key github --host https://rubygems.pkg.github.com/ych-tnk ${{ steps.get_publish_gem.outputs.name }}-${{ steps.get_publish_gem.outputs.version }}.gem
