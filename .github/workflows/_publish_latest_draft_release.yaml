@@ -34,21 +34,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update latest draft release
+      - name: Publish latest draft release
         id: publish_latest_draft_release
         uses: release-drafter/release-drafter@v5
         with:
           config-name: release-drafter.yaml
           prerelease: ${{ inputs.prerelease }}
-          version: ${{ inputs.version }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
-      - name: Publish latest draft release
-        run: gh release edit "${{ steps.publish_latest_draft_release.outputs.tag_name }}" --draft=false
+          publish: true
+          tag: ${{ inputs.version }}
+          name: ${{ inputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get publieshd tag
+        needs: publish_latest_draft_release
         id: get_published_tag
         run: echo "value=${{ steps.publish_latest_draft_release.outputs.tag_name }}" >> $GITHUB_OUTPUT
