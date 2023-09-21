@@ -9,7 +9,7 @@ labels:
     sync: true
     matcher:
       body: '(- \[x\] 機能追加・改善)'
-  - label: 'version/patch'
+  - label: 'version/patch|Automated changes'
     sync: true
     matcher:
       body: '(- \[x\] 開発効率改善、運用効率改善、リファクタ、ドキュメンテーション|- \[x\] 本番環境に流出した不具合の修正|- \[x\] QAやレビューで発見された不具合の修正|- \[x\] その他)'
@@ -36,7 +36,7 @@ labels:
   - label: 'category/misc'
     sync: true
     matcher:
-      body: '- \[x\] その他'
+      body: '- \[x\] その他|Automated changes'
 
 checks:
   - context: "Semantic versioning label check"
@@ -59,3 +59,4 @@ checks:
         - category/hotfix
         - category/bugfix
         - category/misc
+  
