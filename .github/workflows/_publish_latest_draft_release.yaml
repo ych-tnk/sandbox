@@ -47,6 +47,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get publieshd tag
-        needs: publish_latest_draft_release
         id: get_published_tag
         run: echo "value=${{ steps.publish_latest_draft_release.outputs.tag_name }}" >> $GITHUB_OUTPUT
