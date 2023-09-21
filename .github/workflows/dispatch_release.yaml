@@ -48,8 +48,10 @@ jobs:
       - name: Check for releasable differences
         id: check_releaseable_differences
         run: |
-          echo "has_diffrences=$(test -n "$(git diff --shortstat ${{ steps.get_latest_release.outputs.tag }}...)" && echo true || echo false)" >> $GITHUB_OUTPUT
-          if [ "${has_diffrences}" == 'false' ]; then
+          diff="$(git diff --shortstat ${{ steps.get_latest_release.outputs.tag }}...)"
+          if [ -z "${diff}" ]; then
+            echo "has_diffrences=true" >> $GITHUB_OUTPUT
+          else
             case "${{ github.event.inputs.release_type }}" in
               'ga')
                 echo "::warning::The GA release publication is skipped because there is no difference between the latest GA release and HEAD."
@@ -58,6 +60,7 @@ jobs:
                 echo "::warning::The RC release publication is skipped because there is no difference between the latest release and HEAD."
                 ;;
             esac
+            echo "has_diffrences=false" >> $GITHUB_OUTPUT
           fi
 
   resolve_next_release_vesion:
