@@ -91,7 +91,7 @@ jobs:
           echo "value=${version_core}${dot_separated_pre_release_identifiers}" >> $GITHUB_OUTPUT
 
       - name: Update latest draft version
-        run: gh release edit "${{ steps.create_or_update_draft_release.outputs.tag_name }}" --tag "${{ setps.resolve_next_release_version.outputs.value }}"
+        run: gh release edit "${{ steps.create_or_update_draft_release.outputs.tag_name }}" --tag "${{ steps.resolve_next_release_version.outputs.value }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
