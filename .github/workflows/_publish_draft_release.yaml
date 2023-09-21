@@ -11,10 +11,6 @@ on:
         description: The version to be associated with the published release
         required: false
         type: string
-    outputs:
-      published_tag:
-        description: The tag of the published release
-        value: ${{ jobs.publish_release.outputs.published_tag }}
 
 jobs:
   publish_release:
@@ -25,17 +21,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Check if draft release exists
+      - name: Check draft release
+        id: check_draft_release
         run: |
-          if [ "$(gh api /repos/{owner}/{repo}/releases --jq '.[] | select(.draft == true) | length == 0')" == 'true' ]; then
-            echo 'Draft release not found.'
-            exit 1
+          published="$(gh api /repos/{owner}/{repo}/releases --jq '.[] | select(.tag_name | contains("${{ inputs.version }}")) | .draft == false')"
+          if [ "${published}" == 'false' ]; then
+            echo '::warning::The draft release publication skipped because the draft release has already been published.'
           fi
+          echo "published=${published}" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish latest draft release
-        id: publish_latest_draft_release
+      - name: Publish draft release
+        if: steps.check_draft_release.outputs.published == 'false'
         uses: release-drafter/release-drafter@v5
         with:
           config-name: release-drafter.yaml
@@ -46,7 +44,3 @@ jobs:
           name: ${{ inputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Get publieshd tag
-        id: get_published_tag
-        run: echo "value=${{ steps.publish_latest_draft_release.outputs.tag_name }}" >> $GITHUB_OUTPUT

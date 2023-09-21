@@ -3,14 +3,31 @@ name: _Publish gem
 on:
   workflow_call:
     inputs:
-      repository_tag:
-        description: A tag of the repository to checkout.
+      version:
+        description: A valid semantic version.
         required: true
         type: string
       gemspec_path:
-        description: A path of the gemspec.
+        description: A path of the gemspec file.
+         containing the version string to be updated.
         required: true
         type: string
+      checks_watch_start_period:
+        description: A duration until to start watching pr checks
+        required: false
+        type: string
+        default: 60s
+      checks_watch_interval:
+        description: A refresh interval in seconds when watching pr checks
+        required: false
+        type: string
+        default: 120
+    secrets:
+      pr_create_token:
+        description: |
+          An access token that can create pull requests.
+          NOTICE: secrets.GITHUB_TOKEN cannot be used because the pull request approver must be someone other than the creator.
+        required: true
 
 jobs:
   publish_gem:
@@ -18,8 +35,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          ref: ${{ inputs.repository_tag }}
 
       - name: Setup ruby
         uses: ruby/setup-ruby@v1
@@ -33,16 +48,14 @@ jobs:
           chmod 600 ~/.gem/credentials
           echo -e "---\n:github: Bearer ${{ secrets.GITHUB_TOKEN }}" > ~/.gem/credentials
 
-      - name: Get gem name
-        id: get_gem_name
-        run: echo "value=$(sed -n -e "s/[[:blank:]]*.*\.\?[^_]name[[:blank:]]*=[[:blank:]]*['\"]\(.*\)['\"].*/\1/ip" ${{ inputs.gemspec_path }})" >> $GITHUB_OUTPUT
+      - name: Get publish gem
+        id: get_publish_gem
+        run: |
+          echo "name=$(sed -n -e "s/[[:blank:]]*.*\.\?[^_]name[[:blank:]]*=[[:blank:]]*['\"]\(.*\)['\"].*/\1/ip" ${{ inputs.gemspec_path }})" >> $GITHUB_OUTPUT
+          echo "version=$(echo ${{ inputs.version }} | sed -e 's/^v//' -e 's/^\([[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\)[-]\?\(.\+\)$/\1.\2/')" >> $GITHUB_OUTPUT
 
-      - name: Get gem version
-        id: get_gem_version
-        run: echo "value=$(sed -n -e "s/[[:blank:]]*.*\.\?[^_]version[[:blank:]]*=[[:blank:]]*['\"]\(.*\)['\"].*/\1/ip" ${{ inputs.gemspec_path }})" >> $GITHUB_OUTPUT
-
-      - name: Get published falg
-        id: get_published_flag
+      - name: Check gem on push host
+        id: check_gem_on_push_host
         run: |
           ret=$(
           gem search \
@@ -51,13 +64,58 @@ jobs:
           --exact \
           --clear-sources \
           --source https://x-access-token:${{ secrets.GITHUB_TOKEN }}@rubygems.pkg.github.com/ych-tnk \
-          --version ${{ steps.get_gem_version.outputs.value }} \
-          sandbox
+          --version ${{ steps.get_publish_gem.outputs.version }} \
+          ${{ steps.get_publish_gem.outputs.name }}
           )
-          echo "value=$(test "${ret}" == '' && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+          pushed=$(test "${ret}" == '' && echo 'true' || echo 'false')
+          if [ "${pushed}" == 'true' ]; then
+             echo '::warning::The gem publication skipped because the gem has already been published.'
+          fi
+          echo "pushed=${pushed}" >> $GITHUB_OUTPUT
+
+      - name: Update gem version
+        if: steps.check_gem_on_push_host.outputs.pushed == 'false'
+        run: sed -i -e "s/\([[:blank:]]*.*\.\?[^_]version[[:blank:]]*=[[:blank:]]*['\"]\).*\(['\"].*\)/\1 ${{ steps.get_publish_gem.outputs.version }}\2/i" ${{ inputs.gemspec_path }}
+
+      - name: Create bump pull request
+        if: steps.check_gem_on_push_host.outputs.pushed == 'false'
+        id: create_bump_pr
+        uses: peter-evans/create-pull-request@v5
+        with:
+          title: Update gem version to ${{ inputs.version }}
+          labels: |
+            version/patch
+            category/misc
+          token: ${{ secrets.pr_create_token }}
+
+      - name: Approve pull request
+        if: |
+          steps.check_gem_on_push_host.outputs.pushed == 'false' ||
+          steps.create_bump_pr.outputs.pull-request-operation != ''
+        run: gh pr review --approve ${{ steps.create_bump_pr.outputs.pull-request-url }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Wait check complete
+        if: |
+          steps.check_gem_on_push_host.outputs.pushed == 'false' ||
+          steps.create_bump_pr.outputs.pull-request-operation != ''
+        run: |
+          sleep ${{ inputs.checks_watch_start_period }}
+          gh pr checks ${{ steps.create_bump_pr.outputs.pull-request-url }} --required --interval=${{ inputs.checks_watch_interval }} --watch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Merge pull request
+        if: |
+          steps.check_gem_on_push_host.outputs.pushed == 'false' ||
+          steps.create_bump_pr.outputs.pull-request-operation != ''
+        run: gh pr merge --merge ${{ steps.create_bump_pr.outputs.pull-request-url }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push gem
-        if: steps.get_published_flag.outputs.value == 'false'
+        if: steps.check_gem_on_push_host.outputs.pushed == 'false'
         run: |
           gem build ${{ inputs.gemspec_path }}
           gem push --key github --host https://rubygems.pkg.github.com/ych-tnk ${{ steps.get_gem_name.outputs.value }}-${{ steps.get_gem_version.outputs.value }}.gem

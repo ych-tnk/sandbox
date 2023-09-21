@@ -102,9 +102,9 @@ jobs:
               ;;
           esac
 
-  update_gem_version:
+  publish_gem:
     needs: resolve_next_release_vesion
-    uses: ./.github/workflows/_update_gem_version.yaml
+    uses: ./.github/workflows/_publish_gem.yaml
     permissions:
       contents: write
       pull-requests: write
@@ -112,26 +112,16 @@ jobs:
       version: ${{ needs.resolve_next_release_vesion.outputs.next_release_version }}
       gemspec_path: sandbox.gemspec
     secrets:
-      pr_approvable_token: ${{ secrets.TEST }}
+      pr_create_token: ${{ secrets.TEST }}
 
-  publish_latest_draft_release:
+  publish_draft_release:
     needs: 
-      - update_gem_version
       - resolve_next_release_vesion
-    uses: ./.github/workflows/_publish_latest_draft_release.yaml
+      - publish_gem
+    uses: ./.github/workflows/_publish_draft_release.yaml
     permissions:
       contents: write
       pull-requests: write
     with:
       prerelease: ${{ github.event.inputs.release_type != 'ga' }}
       version: v${{ needs.resolve_next_release_vesion.outputs.next_release_version }}
-
-  publish_gem:
-    needs: publish_latest_draft_release
-    uses: ./.github/workflows/_publish_gem.yaml
-    permissions:
-      contents: read
-      packages: write
-    with:
-      repository_tag: ${{ needs.publish_latest_draft_release.outputs.published_tag }}
-      gemspec_path: sandbox.gemspec
