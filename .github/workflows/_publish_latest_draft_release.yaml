@@ -41,6 +41,7 @@ jobs:
           config-name: release-drafter.yaml
           prerelease: ${{ inputs.prerelease }}
           publish: true
+          version: ${{ inputs.version }}
           tag: ${{ inputs.version }}
           name: ${{ inputs.version }}
         env:
