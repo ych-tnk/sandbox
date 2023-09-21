@@ -15,6 +15,7 @@ jobs:
   check_releasablility:
     runs-on: ubuntu-latest
     outputs:
+      latest_release_tag: ${{ steps.get_latest_release_tag.outputs.value }}
       is_releasable: ${{ steps.check_releaseable_differences.outputs.has_diffrences }}
     permissions:
       contents: read
@@ -26,39 +27,34 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Get latest GA release vesion
-        id: get_latest_ga_release_version
+      - name: Get latest release tag
+        id: get_latest_release_tag
         run: |
-          version=$(gh api /repos/{owner}/{repo}/releases --jq 'first(.[] | select(.prerelease != true) | select(.draft != true)).tag_name')
-          echo "value=${version}" >> $GITHUB_OUTPUT
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Get latest RC release vesion
-        id: get_latest_rc_release_version
-        run: |
-          version=$(gh api /repos/{owner}/{repo}/releases --jq 'first(.[] | select(.prerelease == true) | select(.draft != true)).tag_name')
-          echo "value=${version}" >> $GITHUB_OUTPUT
+          case "${{ github.event.inputs.release_type }}" in
+            'ga') 
+              echo "value=$(gh api /repos/{owner}/{repo}/releases --jq 'first(.[] | select(.prerelease != true) | select(.draft != true)).tag_name')" >> $GITHUB_OUTPUT
+              ;;
+            'rc')
+              echo "value=$(gh api /repos/{owner}/{repo}/releases --jq 'first(.[] | select(.draft != true)).tag_name')" >> $GITHUB_OUTPUT
+              ;;
+          esac
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check for releasable differences
         id: check_releaseable_differences
         run: |
-          has_diffrences='true'
-          diff_between_ga="$(git diff --shortstat ${{ steps.get_latest_ga_release_version.outputs.value }}...)"
-          if [ "${{ github.event.inputs.release_type }}" = 'ga' ] && [ -z "${diff_between_ga}"]; then
-            echo "::notice::The GA release publication is skipped because there is no difference between the latest GA release."
-            has_diffrences='false'
+          echo "has_diffrences=$(test -n $(git diff --shortstat ${{ steps.get_latest_release_tag.outputs.value }}...) && echo true || echo false)" >> $GITHUB_OUTPUT
+          if [ "${has_diffrences}" == 'false' ]; then
+            case "${{ github.event.inputs.release_type }}" in
+              'ga')
+                echo "::notice::The GA release publication is skipped because there is no difference between the latest GA release and HEAD."
+                ;;
+              'rc')
+                echo "::notice::The RC release publication is skipped because there is no difference between the latest release and HEAD."
+                ;;
+            esac
           fi
-          diff_between_rc="$(git diff --shortstat ${{ steps.get_latest_rc_release_version.outputs.value }}...)"
-          if [ "${{ github.event.inputs.release_type }}" = 'rc' ] && [ -z "${diff_between_ga}" ] && [ -z "${diff_between_rc}" ]; then
-            echo "::notice::The RC release publication is skipped because there is no difference between the latest GA release or the latest RC release and HEAD."
-            has_diffrences='false'
-          fi
-          echo "::debug::diff_between_ga=${diff_between_ga}"
-          echo "::debug::diff_between_rc=${diff_between_rc}"
-          echo "has_diffrences=${has_diffrences}" >> $GITHUB_OUTPUT
 
   resolve_next_release_vesion:
     needs: check_releasablility
@@ -85,12 +81,17 @@ jobs:
       - name: Resolve next release vesion
         id: resolve_next_release_version
         run: |
-          version_core=$(echo "${{ steps.create_or_update_draft_release.outputs.tag_name }}" | sed -e 's/^\(v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\).*$/\1/')
-          dot_separated_pre_release_identifiers=''
-          if [ "${{ github.event.inputs.release_type }}" = 'rc' ]; then
-            dot_separated_pre_release_identifiers="-rc.$(( $(echo "${{ steps.create_or_update_draft_release.outputs.tag_name }}" | sed -e 's/^v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+-\?[^\.]*\.\?\(.*\)$/\1/') + 1 ))"
-          fi
-          echo "value=${version_core}${dot_separated_pre_release_identifiers}" >> $GITHUB_OUTPUT
+          case "${{ github.event.inputs.release_type }}" in
+            'ga')
+              echo "value=$(echo "${{ steps.create_or_update_draft_release.outputs.tag_name }}" | sed -e 's/^v\([[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\).*$/\1/')" >> $GITHUB_OUTPUT
+              ;;
+            'rc')
+              latest_release_tag="${{ needs.check_releasablility.outputs.latest_release_tag }}"
+              version_core="$(echo "${latest_release_tag}" | sed -e 's/^v\([[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\).*$/\1/')"
+              dot_separated_pre_release_identifiers="-rc.$(( $(echo "${latest_release_tag}" | sed -e 's/^v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+-\?[^\.]*\.\?\(.*\)$/\1/') + 1 ))"
+              echo "value=${version_core}${dot_separated_pre_release_identifiers}" >> $GITHUB_OUTPUT
+              ;;
+          esac
 
   update_gem_version:
     needs: resolve_next_release_vesion
@@ -114,7 +115,7 @@ jobs:
       pull-requests: write
     with:
       prerelease: ${{ github.event.inputs.release_type != 'ga' }}
-      version: ${{ needs.resolve_next_release_vesion.outputs.next_release_version }}
+      version: v${{ needs.resolve_next_release_vesion.outputs.next_release_version }}
 
   publish_gem:
     needs: publish_latest_draft_release
