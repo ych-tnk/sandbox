@@ -16,7 +16,7 @@ on:
         description: A duration until to start watching pr checks
         required: false
         type: string
-        default: 60s
+        default: 30s
       checks_watch_interval:
         description: A refresh interval in seconds when watching pr checks
         required: false
@@ -28,6 +28,7 @@ on:
           An access token that can create pull requests.
           NOTICE: secrets.GITHUB_TOKEN cannot be used because the pull request approver must be someone other than the creator.
         required: true
+        type: string
 
 jobs:
   publish_gem:
@@ -90,7 +91,7 @@ jobs:
 
       - name: Approve pull request
         if: |
-          steps.check_gem_on_push_host.outputs.pushed == 'false' ||
+          steps.check_gem_on_push_host.outputs.pushed == 'false' &&
           steps.create_bump_pr.outputs.pull-request-operation != ''
         run: gh pr review --approve ${{ steps.create_bump_pr.outputs.pull-request-url }}
         env:
@@ -98,7 +99,7 @@ jobs:
 
       - name: Wait check complete
         if: |
-          steps.check_gem_on_push_host.outputs.pushed == 'false' ||
+          steps.check_gem_on_push_host.outputs.pushed == 'false' &&
           steps.create_bump_pr.outputs.pull-request-operation != ''
         run: |
           sleep ${{ inputs.checks_watch_start_period }}
@@ -108,7 +109,7 @@ jobs:
 
       - name: Merge pull request
         if: |
-          steps.check_gem_on_push_host.outputs.pushed == 'false' ||
+          steps.check_gem_on_push_host.outputs.pushed == 'false' &&
           steps.create_bump_pr.outputs.pull-request-operation != ''
         run: gh pr merge --merge ${{ steps.create_bump_pr.outputs.pull-request-url }}
         env:
