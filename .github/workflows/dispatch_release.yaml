@@ -90,6 +90,11 @@ jobs:
           fi
           echo "value=${version_core}${dot_separated_pre_release_identifiers}" >> $GITHUB_OUTPUT
 
+      - name: Update latest draft version
+        run: gh release edit "${{ steps.create_or_update_draft_release.outputs.tag_name }}" --tag "${{ setps.resolve_next_release_version.outputs.value }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   update_gem_version:
     needs: resolve_next_release_vesion
     uses: ./.github/workflows/_update_gem_version.yaml
