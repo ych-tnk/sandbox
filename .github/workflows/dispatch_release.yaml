@@ -44,7 +44,7 @@ jobs:
       - name: Check for releasable differences
         id: check_releaseable_differences
         run: |
-          echo "has_diffrences=$(test -n $(git diff --shortstat ${{ steps.get_latest_release_tag.outputs.value }}...) && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "has_diffrences=$(test -n "$(git diff --shortstat ${{ steps.get_latest_release_tag.outputs.value }}...)" && echo true || echo false)" >> $GITHUB_OUTPUT
           if [ "${has_diffrences}" == 'false' ]; then
             case "${{ github.event.inputs.release_type }}" in
               'ga')
