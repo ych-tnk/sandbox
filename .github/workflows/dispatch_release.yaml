@@ -108,6 +108,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      packages: write
     with:
       version: ${{ needs.resolve_next_release_vesion.outputs.next_release_version }}
       gemspec_path: sandbox.gemspec
