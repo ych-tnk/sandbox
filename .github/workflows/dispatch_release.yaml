@@ -112,7 +112,7 @@ jobs:
       pull-requests: write
     with:
       prerelease: ${{ github.event.inputs.release_type != 'ga' }}
-      version: ${{ needs.resolve_next_release_vesion.outputs.next_release_version }}
+      version: v${{ needs.resolve_next_release_vesion.outputs.next_release_version }}
 
   publish_gem:
     needs: publish_latest_draft_release
