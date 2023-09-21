@@ -41,7 +41,7 @@ jobs:
           config-name: release-drafter.yaml
           prerelease: ${{ inputs.prerelease }}
           publish: true
-          version: ${{ intpus.version }}
+          version: ${{ inputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
