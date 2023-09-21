@@ -39,7 +39,7 @@ jobs:
             'rc')
               latest_release="$(gh api /repos/{owner}/{repo}/releases --jq 'first(.[] | select(.draft != true))')"
               echo "tag=$(echo "${latest_release}" | jq -j '.tag_name')" >> $GITHUB_OUTPUT
-              echo "type=$(test "$(echo "${latest_release}" | jq -j '.prerelease')" == 'true' && echo 'rc' && echo 'ga')" >> $GITHUB_OUTPUT
+              echo "type=$(test "$(echo "${latest_release}" | jq -j '.prerelease')" == 'true' && echo 'rc' || echo 'ga')" >> $GITHUB_OUTPUT
               ;;
           esac
         env:
