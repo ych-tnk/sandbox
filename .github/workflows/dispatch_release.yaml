@@ -56,7 +56,6 @@ jobs:
             echo "::notice::The RC release publication is skipped because there is no difference between the latest GA release or the latest RC release and HEAD."
             has_diffrences='false'
           fi
-          echo "::debug::has_diffrences=${has_diffrences}"
           echo "has_diffrences=${has_diffrences}" >> $GITHUB_OUTPUT
 
   resolve_next_release_vesion:
@@ -85,13 +84,11 @@ jobs:
         id: resolve_next_release_version
         run: |
           version_core=$(echo "${{ steps.create_or_update_draft_release.outputs.tag_name }}" | sed -e 's/^\(v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\).*$/\1/')
-          if [ "${{ github.event.inputs.release_type }}" = 'ga' ]; then
-            echo "value=${version_core}" >> $GITHUB_OUTPUT
-          fi
+          dot_separated_pre_release_identifiers=''
           if [ "${{ github.event.inputs.release_type }}" = 'rc' ]; then
             dot_separated_pre_release_identifiers="-rc.$(( $(echo "${{ steps.create_or_update_draft_release.outputs.tag_name }}" | sed -e 's/^v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+-\?[^\.]*\.\?\(.*\)$/\1/') + 1 ))"
-            echo "value=${version_core}${dot_separated_pre_release_identifiers}" >> $GITHUB_OUTPUT
           fi
+          echo "value=${version_core}${dot_separated_pre_release_identifiers}" >> $GITHUB_OUTPUT
 
   update_gem_version:
     needs: resolve_next_release_vesion
@@ -106,13 +103,16 @@ jobs:
       pr_approvable_token: ${{ secrets.TEST }}
 
   publish_latest_draft_release:
-    needs: update_gem_version
+    needs: 
+      - update_gem_version
+      - resolve_next_release_vesion
     uses: ./.github/workflows/_publish_latest_draft_release.yaml
     permissions:
       contents: write
       pull-requests: write
     with:
       prerelease: ${{ github.event.inputs.release_type != 'ga' }}
+      version: ${{ needs.resolve_next_release_vesion.outputs.next_release_version }}
 
   publish_gem:
     needs: publish_latest_draft_release
