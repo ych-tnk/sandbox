@@ -12,14 +12,13 @@ on:
           - 'rc'
 
 jobs:
-  prepare_release:
+  check_releasablility:
     runs-on: ubuntu-latest
     outputs:
-      next_release_version: ${{ steps.resolve_next_release_version.outputs.value }}
+      is_releasable: ${{ steps.check_releaseable_differences.outputs.has_diffrences }}
     permissions:
-      # write permission is required to obtain draft releases.
-      contents: write
-      pull-requests: write
+      contents: read
+      pull-requests: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -27,79 +26,99 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Get latst release vesion
-        id: get_latest_release_version
+      - name: Get latest GA release vesion
+        id: get_latest_ga_release_version
         run: |
-          latest_release_version=$(gh api /repos/{owner}/{repo}/releases --jq 'first(.[] | select(.draft != true)).tag_name')
-          echo "value=${latest_release_version}" >> $GITHUB_OUTPUT
+          version=$(gh api /repos/{owner}/{repo}/releases --jq 'first(.[] | select(.prerelease != true) | select(.draft != true)).tag_name')
+          echo "value=${version}" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get latst release type
-        id: get_latest_release_type
+      - name: Get latest RC release vesion
+        id: get_latest_rc_release_version
         run: |
-          pre_release_identifier=$(echo "${{ steps.get_latest_release_version.outputs.value }}" | sed -e 's/^v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+-\?\([^.]*\).*$/\1/')
-          latest_release_type="${pre_release_identifier:-ga}"
-          echo "value=${latest_release_type}" >> $GITHUB_OUTPUT
+          version=$(gh api /repos/{owner}/{repo}/releases --jq 'first(.[] | select(.prerelease == true) | select(.draft != true)).tag_name')
+          echo "value=${version}" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get differences between latest release version and HEAD
-        id: get_differences_between_latest_release_version_and_head
+      - name: Check for releasable differences
+        id: check_releaseable_differences
         run: |
-          diff="$(git diff --shortstat ${{ steps.get_latest_release_version.outputs.value }}...)"
-          echo "value=${diff}" >> $GITHUB_OUTPUT
+          has_diffrences="false"
+          diff_between_rc="$(git diff --shortstat ${{ steps.get_latest_rc_release_version.outputs.value }}...)"
+          if [ "${{ github.event.inputs.release_type }}" = 'ga' ] -a [ -z "${diff_between_ga}"]; then
+            echo '::notice The GA release publication is skipped because there is no difference between the latest GA release.'
+            has_diffrences="true"
+          fi
+          diff_between_ga="$(git diff --shortstat ${{ steps.get_latest_ga_release_version.outputs.value }}...)"
+          if [ "${{ github.event.inputs.release_type }}" = 'rc' ] -a [ -z "${diff_between_ga}" ] -a [ -z "${diff_between_rc}" ]; then
+            echo '::notice The RC release publication is skipped because there is no difference between the latest GA release or the latest RC release and HEAD.'
+            has_diffrences="true"
+          fi
+          echo "has_diffrences=${has_diffrences}" >> $GITHUB_OUTPUT
 
-      - name: Check if there are unreleased differences or broader release
-        run: |
-          is_diff_exsists=$(test -n "${{ steps.get_differences_between_latest_release_version_and_head.outputs.value }}" && echo 'true' || echo 'false')
-          is_broader_release=$(test "${{ steps.get_latest_release_type.outputs.value }}" = 'rc' -a "${{ github.event.inputs.release_type }}" == 'ga' && echo 'true' || echo 'false')
-          test "${is_diff_exsists}" == 'true' -o "${is_broader_release}" == 'true' \
-          || (echo "To publish a new release, it must either have unreleased differences or a broader release" && exit 1)
+  resolve_next_release_vesion:
+    needs: check_releasablility
+    if: needs.check_releasablility.outputs.is_releasable == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      next_release_version: ${{ steps.resolve_next_release_version.outputs.value }}
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create or update draft release
+        id: create_or_update_draft_release
+        uses: release-drafter/release-drafter@v5
+        with:
+          config-name: release-drafter.yaml
+          prerelease: ${{ github.event.inputs.release_type != 'ga' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Resolve next release vesion
         id: resolve_next_release_version
         run: |
-          latest_release_version_core=$(echo "${{ steps.get_latest_release_version.outputs.value }}" | sed -e 's/^\(v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\).*$/\1/')
-          next_release_vesion=${latest_release_version_core}${{ github.event.inputs.release_type != 'ga' && format('-{0}', github.event.inputs.release_type) || '' }}
-          echo "value=${next_release_vesion}" >> $GITHUB_OUTPUT
-
-      - name: Check if next release vesion has already been published
-        run: |
-          gh api /repos/{owner}/{repo}/releases -q '.[] | select(.draft != true) | .tag_name' \
-          | test $(grep --line-regexp --count "${{ steps.resolve_next_release_version.outputs.value }}") -eq 0 \
-          || (echo "${{ steps.resolve_next_release_version.outputs.value }} is already published" && exit 1)
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          version_core=$(echo "${{ steps.create_or_update_draft_release.outputs.tag_name }}" | sed -e 's/^\(v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\).*$/\1/')
+          if [ "${{ github.event.inputs.release_type }}" = 'ga' ]; then
+            echo "value=${version_core}" >> $GITHUB_OUTPUT
+          fi
+          if [ "${{ github.event.inputs.release_type }}" = 'rc' ]; then
+            dot_separated_pre_release_identifiers="-rc.$(( $(echo "${{ steps.create_or_update_draft_release.outputs.tag_name }}" | sed -e 's/^v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+-\?[^\.]*\.\?\(.*\)$/\1/') + 1 ))"
+            echo "value=${version_core}${dot_separated_pre_release_identifiers}" >> $GITHUB_OUTPUT
+          fi
 
   update_gem_version:
+    needs: resolve_next_release_vesion
     uses: ./.github/workflows/_update_gem_version.yaml
-    needs: prepare_release
     permissions:
       contents: write
       pull-requests: write
     with:
-      version: ${{ needs.prepare_release.outputs.next_release_version }}
+      version: ${{ needs.resolve_next_release_vesion.outputs.next_release_version }}
       gemspec_path: sandbox.gemspec
     secrets:
       pr_approvable_token: ${{ secrets.TEST }}
 
-  publish_release:
-    uses: ./.github/workflows/_publish_release.yaml
-    needs:
-      - prepare_release
-      - update_gem_version
+  publish_latest_draft_release:
+    needs: update_gem_version
+    uses: ./.github/workflows/_publish_latest_draft_release.yaml
     permissions:
       contents: write
       pull-requests: write
     with:
-      release_version: ${{ needs.prepare_release.outputs.next_release_version }}
       prerelease: ${{ github.event.inputs.release_type != 'ga' }}
 
   publish_gem:
+    needs: publish_latest_draft_release
     uses: ./.github/workflows/_publish_gem.yaml
-    needs: publish_release
     permissions:
       contents: read
       packages: write
     with:
-      repository_tag: ${{ needs.publish_release.outputs.published_tag }}
+      repository_tag: ${{ needs.publish_latest_draft_release.outputs.published_tag }}
       gemspec_path: sandbox.gemspec
