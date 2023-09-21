@@ -40,12 +40,13 @@ jobs:
             version/patch
             category/misc
             武将/秀吉:hideyoshi
+          token: ${{ secrets.pr_approvable_token }}
 
       - name: Approve pull request
         if: steps.create_bump_pr.outputs.pull-request-operation != ''
         run: gh pr review --approve ${{ steps.create_bump_pr.outputs.pull-request-url }}
         env:
-          GITHUB_TOKEN: ${{ secrets.pr_approvable_token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Wait check complete
         if: steps.create_bump_pr.outputs.pull-request-operation != ''
