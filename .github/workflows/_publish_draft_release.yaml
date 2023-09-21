@@ -24,7 +24,7 @@ jobs:
       - name: Check draft release
         id: check_draft_release
         run: |
-          published="$(test -n "$(gh api /repos/{owner}/{repo}/releases --jq '.[] | select(.tag_name | contains("${{ inputs.version }}")) | select(.draft == false)')" && echo 'true' || echo 'false')"
+          published="$(test -n "$(gh api /repos/{owner}/{repo}/releases --jq '.[] | select(.tag_name == "${{ inputs.version }}" and .draft == false)')" && echo 'true' || echo 'false')"
           if [ "${published}" == 'true' ]; then
             echo '::warning::The draft release publication skipped because the draft release has already been published.'
           fi
