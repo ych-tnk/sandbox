@@ -56,6 +56,8 @@ jobs:
             echo "::notice::The RC release publication is skipped because there is no difference between the latest GA release or the latest RC release and HEAD."
             has_diffrences='false'
           fi
+          echo "::debug::diff_between_ga=${diff_between_ga}"
+          echo "::debug::diff_between_rc=${diff_between_rc}"
           echo "has_diffrences=${has_diffrences}" >> $GITHUB_OUTPUT
 
   resolve_next_release_vesion:
