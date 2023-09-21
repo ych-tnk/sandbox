@@ -49,7 +49,7 @@ jobs:
         id: check_releaseable_differences
         run: |
           diff="$(git diff --shortstat ${{ steps.get_latest_release.outputs.tag }}...)"
-          if [ -z "${diff}" ]; then
+          if [ -n "${diff}" ]; then
             echo "has_diffrences=true" >> $GITHUB_OUTPUT
           else
             case "${{ github.event.inputs.release_type }}" in
