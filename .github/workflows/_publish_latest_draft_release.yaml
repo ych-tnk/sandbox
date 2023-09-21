@@ -1,0 +1,45 @@
+name: _Publish latest draft release
+
+on:
+  workflow_call:
+    inputs:
+      prerelease:
+        description: A flag whether the release is pre-release or not
+        required: true
+        type: boolean
+    outputs:
+      published_tag:
+        description: The tag of the published release
+        value: ${{ jobs.publish_release.outputs.published_tag }}
+
+jobs:
+  publish_release:
+    runs-on: ubuntu-latest
+    outputs:
+      published_tag: ${{ steps.get_published_tag.outputs.tag_name }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Check if draft release exists
+        run: |
+          if [ "$(gh api /repos/{owner}/{repo}/releases --jq '.[] | select(.draft == true) | length == 0')" == 'true' ]; then
+            echo 'Draft release not found.'
+            exit 1
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish latest draft release
+        id: publish_latest_draft_release
+        uses: release-drafter/release-drafter@v5
+        with:
+          config-name: release-drafter.yaml
+          prerelease: ${{ inputs.prerelease }}
+          publish: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get publieshd tag
+        id: get_published_tag
+        run: echo "value=${{ steps.publish_latest_draft_release.outputs.tag_name }}" >> $GITHUB_OUTPUT
