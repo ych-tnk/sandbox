@@ -15,7 +15,8 @@ jobs:
   check_releasablility:
     runs-on: ubuntu-latest
     outputs:
-      latest_release_tag: ${{ steps.get_latest_release_tag.outputs.value }}
+      latest_release_tag: ${{ steps.get_latest_release.outputs.tag }}
+      latest_release_type: ${{ steps.get_latest_release.outputs.type }}
       is_releasable: ${{ steps.check_releaseable_differences.outputs.has_diffrences }}
     permissions:
       contents: read
@@ -27,15 +28,18 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Get latest release tag
-        id: get_latest_release_tag
+      - name: Get latest release
+        id: get_latest_release
         run: |
           case "${{ github.event.inputs.release_type }}" in
-            'ga') 
-              echo "value=$(gh api /repos/{owner}/{repo}/releases --jq 'first(.[] | select(.prerelease != true) | select(.draft != true)).tag_name')" >> $GITHUB_OUTPUT
+            'ga')
+              echo "tag=$(gh api /repos/{owner}/{repo}/releases --jq 'first(.[] | select(.prerelease != true) | select(.draft != true)).tag_name')" >> $GITHUB_OUTPUT
+              echo 'type=ga' >> $GITHUB_OUTPUT
               ;;
             'rc')
-              echo "value=$(gh api /repos/{owner}/{repo}/releases --jq 'first(.[] | select(.draft != true)).tag_name')" >> $GITHUB_OUTPUT
+              latest_release="$(gh api /repos/{owner}/{repo}/releases --jq 'first(.[] | select(.draft != true))')"
+              echo "tag=$(echo "${latest_release}" | jq -j '.tag_name')" >> $GITHUB_OUTPUT
+              echo "type=$(echo "${latest_release}" | jq -j '.prerelease')" == 'true' && echo 'rc' && echo 'ga'" >> $GITHUB_OUTPUT
               ;;
           esac
         env:
@@ -44,7 +48,7 @@ jobs:
       - name: Check for releasable differences
         id: check_releaseable_differences
         run: |
-          echo "has_diffrences=$(test -n "$(git diff --shortstat ${{ steps.get_latest_release_tag.outputs.value }}...)" && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "has_diffrences=$(test -n "$(git diff --shortstat ${{ steps.get_latest_release.outputs.tag }}...)" && echo true || echo false)" >> $GITHUB_OUTPUT
           if [ "${has_diffrences}" == 'false' ]; then
             case "${{ github.event.inputs.release_type }}" in
               'ga')
@@ -81,15 +85,17 @@ jobs:
       - name: Resolve next release vesion
         id: resolve_next_release_version
         run: |
+          version_core="$(echo "${{ steps.create_or_update_draft_release.outputs.tag_name }}" | sed -e 's/^v\([[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\).*$/\1/')"
           case "${{ github.event.inputs.release_type }}" in
             'ga')
-              echo "value=$(echo "${{ steps.create_or_update_draft_release.outputs.tag_name }}" | sed -e 's/^v\([[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\).*$/\1/')" >> $GITHUB_OUTPUT
+              echo "value=${version_core}" >> $GITHUB_OUTPUT
               ;;
             'rc')
-              latest_release_tag="${{ needs.check_releasablility.outputs.latest_release_tag }}"
-              version_core="$(echo "${latest_release_tag}" | sed -e 's/^v\([[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\).*$/\1/')"
-              dot_separated_pre_release_identifiers="-rc.$(( $(echo "${latest_release_tag}" | sed -e 's/^v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+-\?[^\.]*\.\?\(.*\)$/\1/') + 1 ))"
-              echo "value=${version_core}${dot_separated_pre_release_identifiers}" >> $GITHUB_OUTPUT
+              if [ "${{ needs.check_releasablility.outputs.latest_release_type }}" == 'rc' ]; then
+                echo "value=${version_core}-rc.$(( $(echo "${{ needs.check_releasablility.outputs.latest_release_tag }}" | sed -e 's/^v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+-\?[^\.]*\.\?\(.*\)$/\1/') + 1 ))"  >> $GITHUB_OUTPUT
+              else
+                echo "value=${version_core}-rc.1" >> $GITHUB_OUTPUT
+              fi
               ;;
           esac
 
