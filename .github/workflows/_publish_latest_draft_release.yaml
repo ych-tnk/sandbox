@@ -7,6 +7,10 @@ on:
         description: A flag whether the release is pre-release or not
         required: true
         type: boolean
+      version:
+        description: The version to be associated with the published release
+        required: false
+        type: string
     outputs:
       published_tag:
         description: The tag of the published release
@@ -37,6 +41,7 @@ jobs:
           config-name: release-drafter.yaml
           prerelease: ${{ inputs.prerelease }}
           publish: true
+          version: ${{ intpus.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
