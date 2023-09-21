@@ -52,10 +52,10 @@ jobs:
           if [ "${has_diffrences}" == 'false' ]; then
             case "${{ github.event.inputs.release_type }}" in
               'ga')
-                echo "::notice::The GA release publication is skipped because there is no difference between the latest GA release and HEAD."
+                echo "::warning::The GA release publication is skipped because there is no difference between the latest GA release and HEAD."
                 ;;
               'rc')
-                echo "::notice::The RC release publication is skipped because there is no difference between the latest release and HEAD."
+                echo "::warning::The RC release publication is skipped because there is no difference between the latest release and HEAD."
                 ;;
             esac
           fi
