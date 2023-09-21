@@ -59,15 +59,15 @@ jobs:
         run: |
           ret=$(
           gem search \
+          ${{ steps.get_publish_gem.outputs.name }} \
           --quiet \
           --remote \
           --exact \
           --clear-sources \
           --source https://x-access-token:${{ secrets.GITHUB_TOKEN }}@rubygems.pkg.github.com/ych-tnk \
-          --version ${{ steps.get_publish_gem.outputs.version }} \
-          ${{ steps.get_publish_gem.outputs.name }}
+          --version ${{ steps.get_publish_gem.outputs.version }}
           )
-          pushed=$(test "${ret}" == '' && echo 'true' || echo 'false')
+          pushed="$(test -n "${ret}" && echo 'true' || echo 'false')"
           if [ "${pushed}" == 'true' ]; then
              echo '::warning::The gem publication skipped because the gem has already been published.'
           fi

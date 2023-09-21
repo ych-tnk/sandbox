@@ -25,7 +25,7 @@ jobs:
         id: check_draft_release
         run: |
           published="$(gh api /repos/{owner}/{repo}/releases --jq '.[] | select(.tag_name | contains("${{ inputs.version }}")) | .draft == false')"
-          if [ "${published}" == 'false' ]; then
+          if [ "${published}" == 'true' ]; then
             echo '::warning::The draft release publication skipped because the draft release has already been published.'
           fi
           echo "published=${published}" >> $GITHUB_OUTPUT
