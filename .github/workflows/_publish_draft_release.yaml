@@ -36,6 +36,8 @@ jobs:
         if: inputs.prerelease == true
         run: |
           echo 'include-pre-releases: true' >> .github/release-drafter.yaml
+          echo "::debug::$(pwd)"
+          echo "::debug::$(cat .github/release-drafter.yaml)"
 
       - name: Publish draft release
         if: steps.check_draft_release.outputs.published == 'false'
