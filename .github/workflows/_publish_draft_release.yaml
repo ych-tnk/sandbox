@@ -32,6 +32,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Enable include-pre-releases
+        if: inputs.prerelease == true
+        run: |
+          echo 'include-pre-releases: true' >> .github/release-drafter.yaml
+
       - name: Publish draft release
         if: steps.check_draft_release.outputs.published == 'false'
         uses: release-drafter/release-drafter@v5
