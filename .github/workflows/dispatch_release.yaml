@@ -12,7 +12,7 @@ on:
           - 'rc'
 
 jobs:
-  check_releasablility:
+  resolve_next_release_vesion:
     runs-on: ubuntu-latest
     outputs:
       next_release_version: ${{ steps.create_or_update_draft_release.outputs.tag_name }}
