@@ -42,7 +42,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   crate_or_update_draft_release:
-    if: ! contains(github.event.issue.labels.*.name, 'category/skip')
+    if: ${{ !(contains(github.event.issue.labels.*.name, 'category/skip')) }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
