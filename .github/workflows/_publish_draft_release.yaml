@@ -21,8 +21,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Check draft release
-        id: check_draft_release
+      - name: Check existence of draft release
+        id: check_existence_draft_release
         run: |
           published="$(test -n "$(gh api /repos/{owner}/{repo}/releases --jq '.[] | select(.tag_name == "${{ inputs.version }}" and .draft == false)')" && echo 'true' || echo 'false')"
           if [ "${published}" == 'true' ]; then
@@ -32,22 +32,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Enable include-pre-releases
-        if: inputs.prerelease == true
-        run: |
-          echo 'include-pre-releases: true' >> .github/release-drafter.yaml
-          echo "::debug::$(pwd)"
-          echo "::debug::$(cat .github/release-drafter.yaml)"
-
       - name: Publish draft release
-        if: steps.check_draft_release.outputs.published == 'false'
-        uses: release-drafter/release-drafter@v5
+        if: steps.check_existence_draft_release.outputs.published == 'false'
+        uses: release-drafter/release-drafter@master
         with:
           config-name: release-drafter.yaml
           prerelease: ${{ inputs.prerelease }}
           publish: true
-          version: ${{ inputs.version }}
-          tag: ${{ inputs.version }}
-          name: ${{ inputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
