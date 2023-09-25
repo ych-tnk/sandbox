@@ -1,0 +1,38 @@
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+categories:
+  - title: ':boom: Breaking Changes'
+    labels:
+      - 'category/breakingchange'
+  - title: ':sparkles: Product Enhancements'
+    labels:
+      - 'category/enhancement'
+  - title: ':zap: Productivity Improvements'
+    labels:
+      - 'category/improvement'
+  - title: ':ambulance: Hot Fixes'
+    labels:
+      - 'category/hotfix'
+  - title: ':bug: Bug Fixes'
+    labels:
+      - 'category/bugfix'
+  - title: 'Miscellaneous'
+    labels:
+      - 'category/misc'
+version-resolver:
+  major:
+    labels:
+      - 'version/major'
+  minor:
+    labels:
+      - 'version/minor'
+  patch:
+    labels:
+      - 'version/patch'
+  default: patch
+template: |
+  ## What’s Changed
+
+  $CHANGES
+
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION

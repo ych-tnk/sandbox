@@ -73,7 +73,7 @@ jobs:
         id: create_or_update_draft_release
         uses: release-drafter/release-drafter@master
         with:
-          config-name: release-drafter.yaml
+          config-name: release-drafter-${{ github.event.inputs.release_type }}.yaml
           prerelease: ${{ github.event.inputs.release_type != 'ga' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -222,7 +222,7 @@ jobs:
         if: steps.check_existence_draft_release.outputs.published == 'false'
         uses: release-drafter/release-drafter@master
         with:
-          config-name: release-drafter.yaml
+          config-name: release-drafter-${{ github.event.inputs.release_type }}.yaml
           prerelease: ${{ github.event.inputs.release_type != 'ga' }}
           publish: true
         env:
