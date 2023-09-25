@@ -156,7 +156,7 @@ jobs:
           title: Update gem version to ${{ needs.resolve_release_version.outputs.value }}
           labels: |
             version/patch
-            category/skip
+            category/misc
           token: ${{ secrets.SUSHI_GITHUB_TOKEN }}
 
       - name: Approve pull request
