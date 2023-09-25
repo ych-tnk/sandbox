@@ -108,7 +108,7 @@ jobs:
           mkdir -p ~/.gem
           touch ~/.gem/credentials
           chmod 600 ~/.gem/credentials
-          echo -e "---\n:github: Bearer ${{ secrets.SUSHI_GITHUB_TOKEN_FOR_GITHUB_PACKAGES }}" > ~/.gem/credentials
+          echo -e "---\n:github: Bearer ${{ secrets.PAT_GITHUB_TOKEN_FOR_GITHUB_PACKAGES }}" > ~/.gem/credentials
 
       - name: Get publish gem info
         id: get_publish_gem_info
@@ -131,7 +131,7 @@ jobs:
           --remote \
           --exact \
           --clear-sources \
-          --source https://x-access-token:${{ secrets.SUSHI_GITHUB_TOKEN_FOR_GITHUB_PACKAGES }}@rubygems.pkg.github.com/ych-tnk \
+          --source https://x-access-token:${{ secrets.PAT_GITHUB_TOKEN_FOR_GITHUB_PACKAGES }}@rubygems.pkg.github.com/ych-tnk \
           --version ${{ steps.get_publish_gem_info.outputs.version }}
           )
           pushed="$(test -n "${ret}" && echo 'true' || echo 'false')"
@@ -157,7 +157,7 @@ jobs:
           labels: |
             version/patch
             category/misc
-          token: ${{ secrets.SUSHI_GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_GITHUB_TOKEN }}
 
       - name: Approve pull request
         if: |
