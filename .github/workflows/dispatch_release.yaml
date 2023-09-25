@@ -10,15 +10,25 @@ on:
         options:
           - 'ga'
           - 'rc'
+      pr_checks_watch_start_period:
+        description: A duration until to start watching pr checks (in seconds)
+        required: false
+        type: string
+        default: 30
+      pr_checks_watch_interval:
+        description: A refresh interval when watching pr checks (in seconds)
+        required: false
+        type: string
+        default: 120
 
 jobs:
   resolve_release_version:
     runs-on: ubuntu-latest
-    outputs:
-      value: ${{ steps.resolve_release_version.outputs.value }}
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      value: ${{ steps.resolve_release_version.outputs.value }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -31,10 +41,10 @@ jobs:
         run: |
           case "${{ github.event.inputs.release_type }}" in
             'ga')
-              echo "value=$(gh api /repos/{owner}/{repo}/releases --jq 'first(.[] | select(.prerelease != true) | select(.draft != true)).tag_name')" >> $GITHUB_OUTPUT
+              echo "value=$(gh release list --exclude-pre-releases --exclude-drafts --limit 1 | head -2 | cut -f 1 | tr -d '\n')" >> $GITHUB_OUTPUT
               ;;
             'rc')
-              echo "value=$(gh api /repos/{owner}/{repo}/releases --jq 'first(.[] | select(.draft != true)).tag_name')" >> $GITHUB_OUTPUT
+              echo "value=$(gh release list --exclude-drafts --limit 1 | head -2 | cut -f 1 | tr -d '\n')" >> $GITHUB_OUTPUT
               ;;
           esac
         env:
@@ -79,25 +89,141 @@ jobs:
 
   publish_gem:
     needs: resolve_release_version
-    uses: ./.github/workflows/_publish_gem.yaml
+    runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
       packages: write
-    with:
-      version: ${{ needs.resolve_release_version.outputs.value }}
-      gemspec_path: sandbox.gemspec
-    secrets:
-      pr_create_token: ${{ secrets.TEST }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+
+      - name: Configure gem credentials
+        run: |
+          mkdir -p ~/.gem
+          touch ~/.gem/credentials
+          chmod 600 ~/.gem/credentials
+          echo -e "---\n:github: Bearer ${{ secrets.SUSHI_GITHUB_TOKEN_FOR_GITHUB_PACKAGES }}" > ~/.gem/credentials
+
+      - name: Get publish gem info
+        id: get_publish_gem_info
+        run: |
+          echo "name=$(sed -n -e "s/[[:blank:]]*.*\.\?[^_]name[[:blank:]]*=[[:blank:]]*['\"]\(.*\)['\"].*/\1/ip" ${{ vars.GEMSPEC_PATH }})" >> $GITHUB_OUTPUT
+          echo "version=$(echo ${{ ${{ needs.resolve_release_version.outputs.value }} }} | sed -e 's/^v//' -e 's/^\([[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\)[-]\?\(.\+\)$/\1.\2/')" >> $GITHUB_OUTPUT
+
+      - name: Check current gem status
+        id: check_current_gem_status
+        run: |
+          updated="$(test -n "$(grep "[[:blank:]]*.*\.\?[^_]version[[:blank:]]*=[[:blank:]]*'${{ steps.get_publish_gem_info.outputs.version }}'" ${{ vars.GEMSPEC_PATH }})" && echo 'true' || echo 'false')"
+          if [ "${updated}" == 'true' ]; then
+             echo '::warning::The gem version update skipped because the gem version has already been updated.'
+          fi
+          echo "updated=${updated}" >> $GITHUB_OUTPUT
+          ret=$(
+          gem search \
+          ${{ steps.get_publish_gem_info.outputs.name }} \
+          --quiet \
+          --remote \
+          --exact \
+          --clear-sources \
+          --source https://x-access-token:${{ secrets.SUSHI_GITHUB_TOKEN_FOR_GITHUB_PACKAGES }}@rubygems.pkg.github.com/ych-tnk \
+          --version ${{ steps.get_publish_gem_info.outputs.version }}
+          )
+          pushed="$(test -n "${ret}" && echo 'true' || echo 'false')"
+          if [ "${pushed}" == 'true' ]; then
+             echo '::warning::The gem publication skipped because the gem has already been published.'
+          fi
+          echo "pushed=${pushed}" >> $GITHUB_OUTPUT
+
+      - name: Update gem version
+        if: |
+          steps.check_current_gem_status.outputs.updated == 'false' &&
+          steps.check_current_gem_status.outputs.pushed == 'false'
+        run: sed -i -e "s/\([[:blank:]]*.*\.\?[^_]version[[:blank:]]*=[[:blank:]]*['\"]\).*\(['\"].*\)/\1${{ steps.get_publish_gem_info.outputs.version }}\2/i" ${{ vars.GEMSPEC_PATH }}
+
+      - name: Create bump pull request
+        if: |
+          steps.check_current_gem_status.outputs.updated == 'false' &&
+          steps.check_current_gem_status.outputs.pushed == 'false'
+        id: create_bump_pr
+        uses: peter-evans/create-pull-request@v5
+        with:
+          title: Update gem version to ${{ ${{ needs.resolve_release_version.outputs.value }} }}
+          labels: |
+            version/patch
+            category/skip
+          token: ${{ secrets.SUSHI_GITHUB_TOKEN }}
+
+      - name: Approve pull request
+        if: |
+          steps.check_current_gem_status.outputs.updated == 'false' &&
+          steps.check_current_gem_status.outputs.pushed == 'false' &&
+          steps.create_bump_pr.outputs.pull-request-operation != ''
+        run: gh pr review --approve ${{ steps.create_bump_pr.outputs.pull-request-url }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Wait check complete
+        if: |
+          steps.check_current_gem_status.outputs.updated == 'false' &&
+          steps.check_current_gem_status.outputs.pushed == 'false' &&
+          steps.create_bump_pr.outputs.pull-request-operation != ''
+        run: |
+          sleep ${{ github.event.inputs.pr_checks_watch_start_period }}
+          gh pr checks ${{ steps.create_bump_pr.outputs.pull-request-url }} --required --interval=${{ github.event.inputs.pr_checks_watch_interval }} --watch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Merge pull request
+        if: |
+          steps.check_current_gem_status.outputs.updated == 'false' &&
+          steps.check_current_gem_status.outputs.pushed == 'false' &&
+          steps.create_bump_pr.outputs.pull-request-operation != ''
+        run: gh pr merge --merge ${{ steps.create_bump_pr.outputs.pull-request-url }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push gem
+        if: steps.check_current_gem_status.outputs.pushed == 'false'
+        run: |
+          git pull --no-tags
+          gem build ${{ vars.GEMSPEC_PATH }}
+          gem push --key github --host https://rubygems.pkg.github.com/ych-tnk ${{ steps.get_publish_gem_info.outputs.name }}-${{ steps.get_publish_gem_info.outputs.version }}.gem
 
   publish_draft_release:
     needs: 
       - resolve_release_version
       - publish_gem
-    uses: ./.github/workflows/_publish_draft_release.yaml
+    runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
-    with:
-      prerelease: ${{ github.event.inputs.release_type != 'ga' }}
-      version: ${{ needs.resolve_release_version.outputs.value }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Check existence of draft release
+        id: check_existence_draft_release
+        run: |
+          published="$(test -n "$(gh api /repos/{owner}/{repo}/releases --jq '.[] | select(.tag_name == "${{ needs.resolve_release_version.outputs.value }}" and .draft == false)')" && echo 'true' || echo 'false')"
+          if [ "${published}" == 'true' ]; then
+            echo '::warning::The draft release publication skipped because the draft release has already been published.'
+          fi
+          echo "published=${published}" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish draft release
+        if: steps.check_existence_draft_release.outputs.published == 'false'
+        uses: release-drafter/release-drafter@master
+        with:
+          config-name: release-drafter.yaml
+          prerelease: ${{ github.event.inputs.release_type != 'ga' }}
+          publish: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
