@@ -48,33 +48,29 @@ jobs:
           chmod 600 ~/.gem/credentials
           echo -e "---\n:github: Bearer ${{ secrets.GITHUB_TOKEN }}" > ~/.gem/credentials
 
-      - name: Get publish gem
-        id: get_publish_gem
+      - name: Get publish gem info
+        id: get_publish_gem_info
         run: |
           echo "name=$(sed -n -e "s/[[:blank:]]*.*\.\?[^_]name[[:blank:]]*=[[:blank:]]*['\"]\(.*\)['\"].*/\1/ip" ${{ inputs.gemspec_path }})" >> $GITHUB_OUTPUT
           echo "version=$(echo ${{ inputs.version }} | sed -e 's/^v//' -e 's/^\([[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\)[-]\?\(.\+\)$/\1.\2/')" >> $GITHUB_OUTPUT
 
-      - name: Check gem version
-        id: check_gem_vesion
+      - name: Check current gem status
+        id: check_current_gem_status
         run: |
-          updated="$(test -n "$(grep "[[:blank:]]*.*\.\?[^_]version[[:blank:]]*=[[:blank:]]*'${{ steps.get_publish_gem.outputs.version }}'" ${{ inputs.gemspec_path }})" && echo 'true' || echo 'false')"
+          updated="$(test -n "$(grep "[[:blank:]]*.*\.\?[^_]version[[:blank:]]*=[[:blank:]]*'${{ steps.get_publish_gem_info.outputs.version }}'" ${{ inputs.gemspec_path }})" && echo 'true' || echo 'false')"
           if [ "${updated}" == 'true' ]; then
              echo '::warning::The gem version update skipped because the gem version has already been updated.'
           fi
           echo "updated=${updated}" >> $GITHUB_OUTPUT
-
-      - name: Check gem on push host
-        id: check_gem_on_push_host
-        run: |
           ret=$(
           gem search \
-          ${{ steps.get_publish_gem.outputs.name }} \
+          ${{ steps.get_publish_gem_info.outputs.name }} \
           --quiet \
           --remote \
           --exact \
           --clear-sources \
           --source https://x-access-token:${{ secrets.GITHUB_TOKEN }}@rubygems.pkg.github.com/ych-tnk \
-          --version ${{ steps.get_publish_gem.outputs.version }}
+          --version ${{ steps.get_publish_gem_info.outputs.version }}
           )
           pushed="$(test -n "${ret}" && echo 'true' || echo 'false')"
           if [ "${pushed}" == 'true' ]; then
@@ -84,27 +80,27 @@ jobs:
 
       - name: Update gem version
         if: |
-          steps.check_gem_vesion.outputs.updated == 'false' &&
-          steps.check_gem_on_push_host.outputs.pushed == 'false'
-        run: sed -i -e "s/\([[:blank:]]*.*\.\?[^_]version[[:blank:]]*=[[:blank:]]*['\"]\).*\(['\"].*\)/\1${{ steps.get_publish_gem.outputs.version }}\2/i" ${{ inputs.gemspec_path }}
+          steps.check_current_gem_status.outputs.updated == 'false' &&
+          steps.check_current_gem_status.outputs.pushed == 'false'
+        run: sed -i -e "s/\([[:blank:]]*.*\.\?[^_]version[[:blank:]]*=[[:blank:]]*['\"]\).*\(['\"].*\)/\1${{ steps.get_publish_gem_info.outputs.version }}\2/i" ${{ inputs.gemspec_path }}
 
       - name: Create bump pull request
         if: |
-          steps.check_gem_vesion.outputs.updated == 'false' &&
-          steps.check_gem_on_push_host.outputs.pushed == 'false'
+          steps.check_current_gem_status.outputs.updated == 'false' &&
+          steps.check_current_gem_status.outputs.pushed == 'false'
         id: create_bump_pr
         uses: peter-evans/create-pull-request@v5
         with:
           title: Update gem version to ${{ inputs.version }}
           labels: |
             version/patch
-            category/misc
+            category/skip
           token: ${{ secrets.pr_create_token }}
 
       - name: Approve pull request
         if: |
-          steps.check_gem_vesion.outputs.updated == 'false' &&
-          steps.check_gem_on_push_host.outputs.pushed == 'false' &&
+          steps.check_current_gem_status.outputs.updated == 'false' &&
+          steps.check_current_gem_status.outputs.pushed == 'false' &&
           steps.create_bump_pr.outputs.pull-request-operation != ''
         run: gh pr review --approve ${{ steps.create_bump_pr.outputs.pull-request-url }}
         env:
@@ -112,8 +108,8 @@ jobs:
 
       - name: Wait check complete
         if: |
-          steps.check_gem_vesion.outputs.updated == 'false' &&
-          steps.check_gem_on_push_host.outputs.pushed == 'false' &&
+          steps.check_current_gem_status.outputs.updated == 'false' &&
+          steps.check_current_gem_status.outputs.pushed == 'false' &&
           steps.create_bump_pr.outputs.pull-request-operation != ''
         run: |
           sleep ${{ inputs.checks_watch_start_period }}
@@ -123,16 +119,16 @@ jobs:
 
       - name: Merge pull request
         if: |
-          steps.check_gem_vesion.outputs.updated == 'false' &&
-          steps.check_gem_on_push_host.outputs.pushed == 'false' &&
+          steps.check_current_gem_status.outputs.updated == 'false' &&
+          steps.check_current_gem_status.outputs.pushed == 'false' &&
           steps.create_bump_pr.outputs.pull-request-operation != ''
         run: gh pr merge --merge ${{ steps.create_bump_pr.outputs.pull-request-url }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push gem
-        if: steps.check_gem_on_push_host.outputs.pushed == 'false'
+        if: steps.check_current_gem_status.outputs.pushed == 'false'
         run: |
           git pull --no-tags
           gem build ${{ inputs.gemspec_path }}
-          gem push --key github --host https://rubygems.pkg.github.com/ych-tnk ${{ steps.get_publish_gem.outputs.name }}-${{ steps.get_publish_gem.outputs.version }}.gem
+          gem push --key github --host https://rubygems.pkg.github.com/ych-tnk ${{ steps.get_publish_gem_info.outputs.name }}-${{ steps.get_publish_gem_info.outputs.version }}.gem

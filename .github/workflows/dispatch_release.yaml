@@ -17,7 +17,7 @@ jobs:
     outputs:
       latest_release_tag: ${{ steps.get_latest_release.outputs.tag }}
       latest_release_type: ${{ steps.get_latest_release.outputs.type }}
-      is_releasable: ${{ steps.check_releaseable_differences.outputs.has_diffrences }}
+      is_releasable: ${{ steps.check_existence_releaseable_differences.outputs.has_diffrences }}
     permissions:
       contents: read
       pull-requests: read
@@ -45,8 +45,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check for releasable differences
-        id: check_releaseable_differences
+      - name: Check existence of releasable differences
+        id: check_existence_releaseable_differences
         run: |
           diff="$(git diff --shortstat ${{ steps.get_latest_release.outputs.tag }}...)"
           if [ -n "${diff}" ]; then
@@ -68,7 +68,7 @@ jobs:
     if: needs.check_releasablility.outputs.is_releasable == 'true'
     runs-on: ubuntu-latest
     outputs:
-      next_release_version: ${{ steps.resolve_next_release_version.outputs.value }}
+      next_release_version: ${{ steps.create_or_update_draft_release.outputs.tag_name }}
     permissions:
       contents: write
       pull-requests: write
@@ -78,29 +78,12 @@ jobs:
 
       - name: Create or update draft release
         id: create_or_update_draft_release
-        uses: release-drafter/release-drafter@v5
+        uses: release-drafter/release-drafter@master
         with:
           config-name: release-drafter.yaml
           prerelease: ${{ github.event.inputs.release_type != 'ga' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Resolve next release vesion
-        id: resolve_next_release_version
-        run: |
-          version_core="$(echo "${{ steps.create_or_update_draft_release.outputs.tag_name }}" | sed -e 's/^v\([[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\).*$/\1/')"
-          case "${{ github.event.inputs.release_type }}" in
-            'ga')
-              echo "value=${version_core}" >> $GITHUB_OUTPUT
-              ;;
-            'rc')
-              if [ "${{ needs.check_releasablility.outputs.latest_release_type }}" == 'rc' ]; then
-                echo "value=${version_core}-rc.$(( $(echo "${{ needs.check_releasablility.outputs.latest_release_tag }}" | sed -e 's/^v[[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+-\?[^\.]*\.\?\(.*\)$/\1/') + 1 ))"  >> $GITHUB_OUTPUT
-              else
-                echo "value=${version_core}-rc.1" >> $GITHUB_OUTPUT
-              fi
-              ;;
-          esac
 
   publish_gem:
     needs: resolve_next_release_vesion

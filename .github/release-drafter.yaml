@@ -1,5 +1,6 @@
 name-template: 'v$RESOLVED_VERSION'
 tag-template: 'v$RESOLVED_VERSION'
+prerelease-identifier: rc
 categories:
   - title: ':boom: Breaking Changes'
     labels:

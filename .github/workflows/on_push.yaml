@@ -26,7 +26,36 @@ jobs:
   sync_label:
     needs: check_file_changed
     if: needs.check_sync_label_files_changed.outputs.labels == 'true'
-    uses: ./.github/workflows/_sync_labels.yaml
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Sync labels
+        uses: micnncim/action-label-syncer@v1
+        with:
+          manifest: .github/labels.yaml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   crate_or_update_draft_release:
-    uses: ./.github/workflows/_create_or_update_draft_release.yaml
+    if: ! contains(github.event.issue.labels.*.name, 'category/skip')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create or update draft release 
+        uses: release-drafter/release-drafter@master
+        with:
+          config-name: release-drafter.yaml
+          version: ${{ inputs.version }}
+          tag: ${{ inputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
