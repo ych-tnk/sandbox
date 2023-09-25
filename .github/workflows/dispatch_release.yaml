@@ -70,7 +70,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish_gem:
-    needs: check_releasablility
+    needs: get_next_release
     if: needs.get_next_release.outputs.exists == 'true'
     uses: ./.github/workflows/_publish_gem.yaml
     permissions:
