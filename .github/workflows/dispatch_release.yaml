@@ -12,11 +12,10 @@ on:
           - 'rc'
 
 jobs:
-  get_next_release:
+  resolve_release_version:
     runs-on: ubuntu-latest
     outputs:
-      exists: ${{ steps.check_existence_releaseable_differences.outputs.has_diffrences }}
-      version: ${{ steps.create_or_update_draft_release.outputs.tag_name }}
+      value: ${{ steps.resolve_release_version.outputs.value }}
     permissions:
       contents: write
       pull-requests: write
@@ -27,8 +26,8 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Get latest release tag
-        id: get_latest_release_tag
+      - name: Get latest release tag name
+        id: get_latest_release_tag_name
         run: |
           case "${{ github.event.inputs.release_type }}" in
             'ga')
@@ -44,7 +43,7 @@ jobs:
       - name: Check existence of releasable differences
         id: check_existence_releaseable_differences
         run: |
-          diff="$(git diff --shortstat ${{ steps.get_latest_release_tag.outputs.value }}...)"
+          diff="$(git diff --shortstat ${{ steps.get_latest_release_tag_name.outputs.value }}...)"
           if [ -n "${diff}" ]; then
             echo "has_diffrences=true" >> $GITHUB_OUTPUT
           else
@@ -69,29 +68,36 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Resolve release version
+        id: resolve_release_version
+        run: |
+          if [ -n "${{ steps.create_or_update_draft_release.outputs.tag_name }}" ]; then
+            echo "value=${{ steps.create_or_update_draft_release.outputs.tag_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "value=${{ steps.get_latest_release_tag_name.outputs.value }}" >> $GITHUB_OUTPUT
+          fi
+
   publish_gem:
-    needs: get_next_release
-    if: needs.get_next_release.outputs.exists == 'true'
+    needs: resolve_release_version
     uses: ./.github/workflows/_publish_gem.yaml
     permissions:
       contents: write
       pull-requests: write
       packages: write
     with:
-      version: ${{ needs.get_next_release.outputs.version }}
+      version: ${{ needs.resolve_release_version.outputs.value }}
       gemspec_path: sandbox.gemspec
     secrets:
       pr_create_token: ${{ secrets.TEST }}
 
   publish_draft_release:
     needs: 
-      - get_next_release
+      - resolve_release_version
       - publish_gem
-    if: needs.get_next_release.outputs.exists == 'true'
     uses: ./.github/workflows/_publish_draft_release.yaml
     permissions:
       contents: write
       pull-requests: write
     with:
       prerelease: ${{ github.event.inputs.release_type != 'ga' }}
-      version: ${{ needs.get_next_release.outputs.version }}
+      version: ${{ needs.resolve_release_version.outputs.value }}
