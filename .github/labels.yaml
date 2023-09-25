@@ -31,6 +31,3 @@
 - name: category/misc
   description: Miscellaneous。その他。
   color: cfd3d7
-- name: category/skip
-  description: Skip crate or update draft release。
-  color: 000000
