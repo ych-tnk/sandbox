@@ -15,12 +15,10 @@ jobs:
   check_releasablility:
     runs-on: ubuntu-latest
     outputs:
-      latest_release_tag: ${{ steps.get_latest_release.outputs.tag }}
-      latest_release_type: ${{ steps.get_latest_release.outputs.type }}
-      is_releasable: ${{ steps.check_existence_releaseable_differences.outputs.has_diffrences }}
+      next_release_version: ${{ steps.create_or_update_draft_release.outputs.tag_name }}
     permissions:
-      contents: read
-      pull-requests: read
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -28,18 +26,15 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Get latest release
-        id: get_latest_release
+      - name: Get latest release tag
+        id: get_latest_release_tag
         run: |
           case "${{ github.event.inputs.release_type }}" in
             'ga')
-              echo "tag=$(gh api /repos/{owner}/{repo}/releases --jq 'first(.[] | select(.prerelease != true) | select(.draft != true)).tag_name')" >> $GITHUB_OUTPUT
-              echo 'type=ga' >> $GITHUB_OUTPUT
+              echo "value=$(gh api /repos/{owner}/{repo}/releases --jq 'first(.[] | select(.prerelease != true) | select(.draft != true)).tag_name')" >> $GITHUB_OUTPUT
               ;;
             'rc')
-              latest_release="$(gh api /repos/{owner}/{repo}/releases --jq 'first(.[] | select(.draft != true))')"
-              echo "tag=$(echo "${latest_release}" | jq -j '.tag_name')" >> $GITHUB_OUTPUT
-              echo "type=$(test "$(echo "${latest_release}" | jq -j '.prerelease')" == 'true' && echo 'rc' || echo 'ga')" >> $GITHUB_OUTPUT
+              echo "value=$(gh api /repos/{owner}/{repo}/releases --jq 'first(.[] | select(.draft != true)).tag_name')" >> $GITHUB_OUTPUT
               ;;
           esac
         env:
@@ -48,7 +43,7 @@ jobs:
       - name: Check existence of releasable differences
         id: check_existence_releaseable_differences
         run: |
-          diff="$(git diff --shortstat ${{ steps.get_latest_release.outputs.tag }}...)"
+          diff="$(git diff --shortstat ${{ steps.get_latest_release_tag.outputs.value }}...)"
           if [ -n "${diff}" ]; then
             echo "has_diffrences=true" >> $GITHUB_OUTPUT
           else
@@ -63,20 +58,8 @@ jobs:
             echo "has_diffrences=false" >> $GITHUB_OUTPUT
           fi
 
-  resolve_next_release_vesion:
-    needs: check_releasablility
-    if: needs.check_releasablility.outputs.is_releasable == 'true'
-    runs-on: ubuntu-latest
-    outputs:
-      next_release_version: ${{ steps.create_or_update_draft_release.outputs.tag_name }}
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
       - name: Create or update draft release
+        if: steps.check_existence_releaseable_differences.outputs.has_diffrences == 'true'
         id: create_or_update_draft_release
         uses: release-drafter/release-drafter@master
         with:
