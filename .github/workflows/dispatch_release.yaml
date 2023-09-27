@@ -68,12 +68,17 @@ jobs:
             echo "has_diffrences=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Enable pre-release
+        if: github.event.inputs.release_type == 'rc'
+        run: |
+          echo 'prerelease-identifier: rc' >> .github/release-drafter.yaml
+
       - name: Create or update draft release
         if: steps.check_existence_releaseable_differences.outputs.has_diffrences == 'true'
         id: create_or_update_draft_release
         uses: release-drafter/release-drafter@master
         with:
-          config-name: release-drafter-${{ github.event.inputs.release_type }}.yaml
+          config-name: release-drafter.yaml
           prerelease: ${{ github.event.inputs.release_type != 'ga' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -218,11 +223,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Enable pre-release
+        if: github.event.inputs.release_type == 'rc'
+        run: |
+          echo 'prerelease-identifier: rc' >> .github/release-drafter.yaml
+
       - name: Publish draft release
         if: steps.check_existence_draft_release.outputs.published == 'false'
         uses: release-drafter/release-drafter@master
         with:
-          config-name: release-drafter-${{ github.event.inputs.release_type }}.yaml
+          config-name: release-drafter.yaml
           prerelease: ${{ github.event.inputs.release_type != 'ga' }}
           publish: true
         env:
