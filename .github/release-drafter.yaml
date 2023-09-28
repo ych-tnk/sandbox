@@ -1,4 +1,4 @@
-version-template: 'deploy-$MAJOR$PRERELEASE'
+version-template: 'deploy-$MAJOR$MINOR$PATCH"$PRERELEASE'
 categories:
   - title: ':boom: Breaking Changes'
     labels:
