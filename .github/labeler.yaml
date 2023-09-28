@@ -1,26 +1,14 @@
 version: v1
 
 labels:
-  - label: 'version/major'
-    sync: true
-    matcher:
-      body: '\[x\] APIに互換性のない破壊的変更がある'
-  - label: 'version/minor'
-    sync: true
-    matcher:
-      body: '(- \[x\] 機能追加・改善)'
-  - label: 'version/patch'
-    sync: true
-    matcher:
-      body: '(- \[x\] 開発効率改善、運用効率改善、リファクタ、ドキュメンテーション|- \[x\] 本番環境に流出した不具合の修正|- \[x\] QAやレビューで発見された不具合の修正|- \[x\] その他|Automated changes)'
   - label: 'category/breakingchange'
     sync: true
     matcher:
-      body: '- \[x\] APIに互換性のない破壊的変更がある'
+      body: '- \[x\] 破壊的な変更'
   - label: 'category/enhancement'
     sync: true
     matcher:
-      body: '- \[x\] 機能追加・改善'
+      body: '- \[x\] 機能の追加・改善'
   - label: 'category/improvement'
     sync: true
     matcher:
@@ -36,18 +24,9 @@ labels:
   - label: 'category/misc'
     sync: true
     matcher:
-      body: '(- \[x\] その他|Automated changes)'
+      body: '- \[x\] その他'
 
 checks:
-  - context: "Semantic versioning label check"
-    description:
-      success: "Ready for review & merge."
-      failure: "Missing semantic versioning labels."
-    labels:
-      any:
-        - version/major
-        - version/minor
-        - version/patch
   - context: "PR category label check"
     description:
       success: "Ready for review & merge."

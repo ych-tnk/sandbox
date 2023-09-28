@@ -1,5 +1,5 @@
-name-template: 'deploy-$RESOLVED_VERSION'
-tag-template: 'deploy-$RESOLVED_VERSION'
+name-template: 'proto/v$RESOLVED_VERSION'
+tag-template: 'proto/v$RESOLVED_VERSION'
 categories:
   - title: ':boom: Breaking Changes'
     labels:
@@ -19,7 +19,18 @@ categories:
   - title: 'Miscellaneous'
     labels:
       - 'category/misc'
-exclude-labels:
+version-resolver:
+  major:
+    labels:
+      - 'proto/version/major'
+  minor:
+    labels:
+      - 'proto/version/minor'
+  patch:
+    labels:
+      - 'proto/version/patch'
+  default: patch
+include-labels:
   - proto/category/breakingchange
   - proto/category/compatiblechange
   - proto/category/dependencychange
