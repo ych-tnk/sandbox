@@ -19,13 +19,9 @@ categories:
   - title: 'Miscellaneous'
     labels:
       - 'category/misc'
-exclude-labels:
-  - proto/category/breakingchange
-  - proto/category/compatiblechange
-  - proto/category/dependencychange
 template: |
   ## What’s Changed
 
   $CHANGES
 
-  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...deploy-$RESOLVED_VERSION
