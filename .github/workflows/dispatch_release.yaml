@@ -60,7 +60,7 @@ jobs:
 
       - name: Resolve release version
         id: resolve_release_version
-        run: date --date="$(gh api /repos/{owner}/{repo}/actions/runs/${{ github.run_id }} --jq '.created_at')" "+%Y%m%d%H%M%S"
+        run: echo "value=$(date --date=$(gh api /repos/{owner}/{repo}/actions/runs/${{ github.run_id }} --jq '.created_at') '+%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -95,6 +95,5 @@ jobs:
           prerelease-identifier: ${{ github.event.inputs.release_type == 'rc' && 'rc' || '' }}
           publish: true
           tag: ${{ needs.resolve_release_version.outputs.value }}
-          name: ${{ needs.resolve_release_version.outputs.value }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
