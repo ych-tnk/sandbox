@@ -94,6 +94,6 @@ jobs:
           prerelease: ${{ github.event.inputs.release_type == 'rc' }}
           prerelease-identifier: ${{ github.event.inputs.release_type == 'rc' && 'rc' || '' }}
           publish: true
-          version: ${{ needs.resolve_release_version.outputs.value }}
+          tag: ${{ needs.resolve_release_version.outputs.value }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
