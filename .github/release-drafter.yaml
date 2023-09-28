@@ -1,4 +1,4 @@
-tag-prefix: 'deploy-'
+tag-template: 'deploy-$RESOLVED_VERSION'
 categories:
   - title: ':boom: Breaking Changes'
     labels:
@@ -23,4 +23,4 @@ template: |
 
   $CHANGES
 
-  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...$RESOLVED_VERSION
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...deploy-$RESOLVED_VERSION
