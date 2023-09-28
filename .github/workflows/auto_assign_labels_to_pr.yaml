@@ -22,9 +22,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Chack protocol files changed
+      - name: Chack files changed
         uses: dorny/paths-filter@v2
-        id: check_proto_files_changed
+        id: check_files_changed
         with:
           filters: |
             proto:
@@ -36,7 +36,7 @@ jobs:
           config-path: .github/labeler.yaml
 
       - name: Auto assign proto labels to pull requests
-        if: steps.check_proto_files_changed.outputs.proto == 'true'
+        if: steps.check_files_changed.outputs.proto == 'true'
         uses: fuxingloh/multi-labeler@v2
         with:
           config-path: .github/proto-labeler.yaml

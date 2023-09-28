@@ -1,46 +1,26 @@
 version: v1
 
 labels:
-  - label: 'proto/category/breakingchange'
+  - label: 'proto/versioning/bump-major'
     sync: true
     matcher:
       body: '\[x\] プロトコル定義に後方互換性のある変更'
-  - label: 'proto/category/compatiblechange'
+  - label: 'proto/versioning/bump-minor'
     sync: true
     matcher:
       body: '- \[x\] プロトコル定義に後方互換性のない変更'
-  - label: 'proto/category/dependencychange'
-    sync: true
-    matcher:
-      body: '- \[x\] プロトコル定義から生成するクライアントライブラリの依存関係変更'
-  - label: 'proto/version/major'
-    sync: true
-    matcher:
-      body: '\[x\] プロトコル定義に後方互換性のある変更'
-  - label: 'proto/version/minor'
-    sync: true
-    matcher:
-      body: '- \[x\] プロトコル定義に後方互換性のない変更'
-  - label: 'proto/version/patch'
+  - label: 'proto/versioning/bump-patch'
     sync: true
     matcher:
       body: '- \[x\] プロトコル定義から生成するクライアントライブラリの依存関係変更'
 
 checks:
-  - context: "Protocol change category label check"
-    description:
-      success: "Ready for review & merge."
-      failure: "Missing protocol change category labels."
-    labels:
-      - proto/category/breakingchange
-      - proto/category/compatiblechange
-      - proto/category/dependencychange
   - context: "Protocol semantic versioning label check"
     description:
       success: "Ready for review & merge."
       failure: "Missing protocol semantic versioning labels."
     labels:
       any:
-        - proto/version/major
-        - proto/version/minor
-        - proto/version/patch
+        - proto/versioning/bump-major
+        - proto/versioning/bump-minor
+        - proto/versioning/bump-patch
