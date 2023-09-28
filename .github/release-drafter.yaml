@@ -1,5 +1,4 @@
-tag-prefix: 'deploy-'
-version-template: '$MAJOR$PRERELEASE'
+version-template: 'deploy-$MAJOR$PRERELEASE'
 categories:
   - title: ':boom: Breaking Changes'
     labels:
