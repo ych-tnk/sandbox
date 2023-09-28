@@ -10,7 +10,7 @@
 - [ ] QAやレビューで発見された不具合の修正
 - [ ] その他
 
-<!-- protocol-change-category -->
+<!-- protocol-changes-category -->
 
 ## :memo: What's Changed/変更内容
 <!-- 変更内容を記述する。 -->
