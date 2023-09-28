@@ -1,0 +1,42 @@
+name: Replace pull request placeholder
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+
+jobs:
+  replace_pr_placeholder:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Chack files changed
+        uses: dorny/paths-filter@v2
+        id: check_files_changed
+        with:
+          filters: |
+            proto:
+              - proto/**
+ 
+      - name: Replace protocol-changes-category
+        if: steps.check_files_changed.outputs.proto == 'true'
+        run: |
+          replacement=$(cat << EOS
+          ## :cop: Protocol Changes Category/プロトコル変更のカテゴリ\\n
+          <!-- プロトコルに変更があれば選択する。 -->\\n
+          - [ ] プロトコル定義に後方互換性のある変更\\n
+          - [ ] プロトコル定義に後方互換性のない変更\\n
+          - [ ] プロトコル定義から生成するクライアントライブラリの依存関係変更
+          EOS
+          )
+          replaced="$(gh pr view ${{ github.event.number }} --json body --jq .body | sed -e "s%<!-- protocol-changes-category -->%$(echo ${replacement})%")"
+          gh pr edit ${{ github.event.number }} --body "${replaced}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

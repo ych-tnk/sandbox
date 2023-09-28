@@ -22,18 +22,18 @@ categories:
 version-resolver:
   major:
     labels:
-      - 'proto/version/major'
+      - 'proto/versioning/bump-major'
   minor:
     labels:
-      - 'proto/version/minor'
+      - 'proto/versioning/bump-minor'
   patch:
     labels:
-      - 'proto/version/patch'
+      - 'proto/versioning/bump-patch'
   default: patch
 include-labels:
-  - proto/category/breakingchange
-  - proto/category/compatiblechange
-  - proto/category/dependencychange
+  - proto/versioning/bump-major
+  - proto/versioning/bump-minor
+  - proto/versioning/bump-patch
 template: |
   ## What’s Changed
 
