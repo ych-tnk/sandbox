@@ -60,7 +60,7 @@ jobs:
 
       - name: Resolve release version
         id: resolve_release_version
-        run: date --data="$(gh api /repos/{owner}/{repo}/actions/runs/${{ github.run_id }} --jq '.created_at')" "+%Y%m%d%H%M"
+        run: date --data="$(gh api /repos/{owner}/{repo}/actions/runs/${{ github.run_id }} --jq '.created_at')" "+%Y%m%d%H%M%S"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
