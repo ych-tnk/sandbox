@@ -1,0 +1,35 @@
+name: Checker labels
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+      - unlabeled
+
+jobs:
+  check_labels:
+    name: Check labels
+    runs-on: ubuntu-latest
+    steps:
+      - name: Chack files changed
+        uses: dorny/paths-filter@v2
+        id: check_files_changed
+        with:
+          filters: |
+            proto:
+              - proto/**
+
+      - name: Check pr labels
+        uses: docker://agilepathway/pull-request-label-checker:latest
+        with:
+          any_of: pr/category/enhancement,pr/category/improvement,pr/category/hotfix,pr/category/bugfix,pr/category/misc
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check proto labels
+        if: steps.check_files_changed.outputs.proto == 'true'
+        uses: docker://agilepathway/pull-request-label-checker:latest
+        with:
+          any_of: proto/category/breakingchange,proto/category/compatiblechange,proto/category/dependencychange
+          repo_token: ${{ secrets.GITHUB_TOKEN }}

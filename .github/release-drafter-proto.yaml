@@ -1,39 +1,36 @@
-name-template: 'proto/v$RESOLVED_VERSION'
-tag-template: 'proto/v$RESOLVED_VERSION'
+name-template: proto/v$RESOLVED_VERSION
+tag-template: proto/v$RESOLVED_VERSION
 categories:
-  - title: ':boom: Breaking Changes'
-    labels:
-      - 'category/breakingchange'
   - title: ':sparkles: Product Enhancements'
     labels:
-      - 'category/enhancement'
+      - pr/category/enhancement
   - title: ':zap: Productivity Improvements'
     labels:
-      - 'category/improvement'
+      - pr/category/improvement
   - title: ':ambulance: Hot Fixes'
     labels:
-      - 'category/hotfix'
+      - pr/category/hotfix
   - title: ':bug: Bug Fixes'
     labels:
-      - 'category/bugfix'
+      - pr/category/bugfix
   - title: 'Miscellaneous'
     labels:
-      - 'category/misc'
+      - pr/category/misc
 version-resolver:
   major:
     labels:
-      - 'proto/versioning/bump-major'
+      - proto/category/breakingchange
   minor:
     labels:
-      - 'proto/versioning/bump-minor'
+      - proto/category/compatiblechange
   patch:
     labels:
-      - 'proto/versioning/bump-patch'
+      - proto/category/dependencychange
   default: patch
 include-labels:
-  - proto/versioning/bump-major
-  - proto/versioning/bump-minor
-  - proto/versioning/bump-patch
+  - proto/category/breakingchange
+  - proto/category/compatiblechange
+  - proto/category/dependencychange
 template: |
   ## What’s Changed
 

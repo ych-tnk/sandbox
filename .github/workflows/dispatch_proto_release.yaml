@@ -223,7 +223,7 @@ jobs:
         if: steps.check_existence_draft_release.outputs.published == 'false'
         uses: release-drafter/release-drafter@master
         with:
-          config-name: release-drafter.yaml
+          config-name: release-drafter-proto.yaml
           prerelease: ${{ github.event.inputs.release_type == 'rc' }}
           prerelease-identifier: ${{ github.event.inputs.release_type == 'rc' && 'rc' || '' }}
           publish: true
