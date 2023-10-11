@@ -24,3 +24,4 @@ jobs:
         uses: fuxingloh/multi-labeler@v2
         with:
           config-path: .github/labeler.yaml
+          github-token: ${{ secrets.PAT_GITHUB_TOKEN }}

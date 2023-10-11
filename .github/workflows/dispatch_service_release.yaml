@@ -92,6 +92,6 @@ jobs:
           config-name: release-drafter-service.yaml
           prerelease: ${{ github.event.inputs.release_type == 'rc' }}
           publish: true
-          version: ${{ needs.resolve_release_version.outputs.value }}${{ github.event.inputs.release_type == 'rc' && '-rc' }}
+          tag: deploy-${{ needs.resolve_release_version.outputs.value }}${{ github.event.inputs.release_type == 'rc' && '-rc' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
