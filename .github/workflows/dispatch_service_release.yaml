@@ -1,0 +1,98 @@
+name: Dispatch service release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: Select a release type
+        required: true
+        type: choice
+        options:
+          - 'ga'
+          - 'rc'
+
+jobs:
+  resolve_release_version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      value: ${{ steps.resolve_release_version.outputs.value }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Get latest release tag name
+        id: get_latest_release_tag_name
+        run: |
+          case "${{ github.event.inputs.release_type }}" in
+            'ga')
+              echo "value=$(gh release list --exclude-pre-releases --exclude-drafts --limit 1 | head -2 | cut -f 1 | tr -d '\n')" >> $GITHUB_OUTPUT
+              ;;
+            'rc')
+              echo "value=$(gh release list --exclude-drafts --limit 1 | head -2 | cut -f 1 | tr -d '\n')" >> $GITHUB_OUTPUT
+              ;;
+          esac
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check existence of releasable differences
+        id: check_existence_releaseable_differences
+        run: |
+          diff="$(git diff --shortstat ${{ steps.get_latest_release_tag_name.outputs.value }}...)"
+          if [ -n "${diff}" ]; then
+            echo "has_diffrences=true" >> $GITHUB_OUTPUT
+          else
+            case "${{ github.event.inputs.release_type }}" in
+              'ga')
+                echo "::warning::The GA release publication is skipped because there is no difference between the latest GA release and HEAD."
+                ;;
+              'rc')
+                echo "::warning::The RC release publication is skipped because there is no difference between the latest release and HEAD."
+                ;;
+            esac
+            echo "has_diffrences=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Resolve release version
+        id: resolve_release_version
+        run: date --date="$(gh api /repos/{owner}/{repo}/actions/runs/${{ github.run_id }} --jq '.created_at')" "+%Y%m%d%H%M%S"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish_draft_release:
+    needs: 
+      - resolve_release_version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Check existence of draft release
+        id: check_existence_draft_release
+        run: |
+          published="$(test -n "$(gh api /repos/{owner}/{repo}/releases --jq '.[] | select(.tag_name == "${{ needs.resolve_release_version.outputs.value }}" and .draft == false)')" && echo 'true' || echo 'false')"
+          if [ "${published}" == 'true' ]; then
+            echo '::warning::The draft release publication skipped because the draft release has already been published.'
+          fi
+          echo "published=${published}" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish draft release
+        if: steps.check_existence_draft_release.outputs.published == 'false'
+        uses: release-drafter/release-drafter@master
+        with:
+          config-name: release-drafter-service.yaml
+          prerelease: ${{ github.event.inputs.release_type == 'rc' }}
+          publish: true
+          version: ${{ needs.resolve_release_version.outputs.value }}${{ github.event.inputs.release_type == 'rc' && '-rc' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

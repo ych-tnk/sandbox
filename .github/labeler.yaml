@@ -1,40 +1,41 @@
 version: v1
 
 labels:
-  - label: 'category/breakingchange'
-    sync: true
-    matcher:
-      body: '- \[x\] 破壊的な変更'
-  - label: 'category/enhancement'
+  # pr category labels
+  - label: pr/category/enhancement
     sync: true
     matcher:
       body: '- \[x\] 機能の追加・改善'
-  - label: 'category/improvement'
+  - label: pr/category/improvement
     sync: true
     matcher:
       body: '- \[x\] 開発効率改善、運用効率改善、リファクタ、ドキュメンテーション'
-  - label: 'category/hotfix'
+  - label: pr/category/hotfix
     sync: true
     matcher:
       body: '- \[x\] 本番環境に流出した不具合の修正'
-  - label: 'category/bugfix'
+  - label: pr/category/bugfix
     sync: true
     matcher:
       body: '- \[x\] QAやレビューで発見された不具合の修正'
-  - label: 'category/misc'
+  - label: pr/category/misc
     sync: true
     matcher:
       body: '- \[x\] その他'
 
-checks:
-  - context: "PR category label check"
-    description:
-      success: "Ready for review & merge."
-      failure: "Missing PR category labels."
-    labels:
-      any:
-        - category/enhancement
-        - category/improvement
-        - category/hotfix
-        - category/bugfix
-        - category/misc
+  # proto change category labels
+  - label: proto/category/breakingchange
+    sync: true
+    matcher:
+      body: '\[x\] プロトコル定義に後方互換性のある変更'
+      files: 'proto/**'
+  - label: proto/category/compatiblechange
+    sync: true
+    matcher:
+      body: '- \[x\] プロトコル定義に後方互換性のない変更'
+      files: 'proto/**'
+  - label: proto/category/dependencychange
+    sync: true
+    matcher:
+      body: '- \[x\] プロトコル定義から生成するクライアントライブラリの依存関係変更'
+      files: 'proto/**'

@@ -1,0 +1,24 @@
+tag-template: 'deploy-$RESOLVED_VERSION'
+tag-prefix
+categories:
+  - title: ':sparkles: Product Enhancements'
+    labels:
+      - pr/category/enhancement
+  - title: ':zap: Productivity Improvements'
+    labels:
+      - pr/category/improvement
+  - title: ':ambulance: Hot Fixes'
+    labels:
+      - pr/category/hotfix
+  - title: ':bug: Bug Fixes'
+    labels:
+      - pr/category/bugfix
+  - title: 'Miscellaneous'
+    labels:
+      - pr/category/misc
+template: |
+  ## What’s Changed
+
+  $CHANGES
+
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...deploy-$RESOLVED_VERSION

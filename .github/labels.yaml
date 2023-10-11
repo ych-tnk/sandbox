@@ -2,32 +2,29 @@
 # https://github.com/micnncim/action-label-syncer
 
 # pr category labels
-- name: category/breakingchange
-  description: Breaking Change。破壊的な変更。
-  color: d93f0b
-- name: category/enhancement
+- name: pr/category/enhancement
   description: Product enhancement。機能の追加・改善。
   color: 88dd5d
-- name: category/improvement
+- name: pr/category/improvement
   description: Productiviety improvement。開発効率改善、運用効率改善、リファクタ、ドキュメンテーション。
   color: fbca04
-- name: category/hotfix
+- name: pr/category/hotfix
   description: Hot fix。本番環境に流出した不具合の修正。
   color: e99695
-- name: category/bugfix
+- name: pr/category/bugfix
   description: Bug fix。QAやレビューで発見された不具合の修正。
   color: 1d76db
-- name: category/misc
+- name: pr/category/misc
   description: Miscellaneous。その他。
   color: cfd3d7
 
-# proto semantic versioning labels
-- name: proto/versioning/bump-major
-  description: Bump major version of protocol。プロトコルのメジャーバージョンが上がる変更。
-  color: b60205
-- name: proto/versioning/bump-minor
-  description: Bump minor version of protocol。プロトコルのマイナーバージョンが上がる変更。
-  color: 0e8a16
-- name: proto/versioning/bump-patch
-  description: Bump patch version of protocol。プロトコルのパッチバージョンが上がる変更。
-  color: ffa500
+# proto change category labels
+- name: proto/category/breakingchange
+  description: Breaking change of protocol。プロトコル定義に後方互換性のない変更。
+  color: d93f0b
+- name: proto/category/compatiblechange
+  description: Compatible change of protocol。プロトコル定義に後方互換性のある変更。
+  color: 88dd5d
+- name: proto/category/dependencychange
+  description: Dependency change of protocol。プロトコル定義から生成するクライアントライブラリの依存関係変更。
+  color: cfd3d7
