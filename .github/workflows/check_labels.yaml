@@ -13,6 +13,9 @@ jobs:
     name: Check labels
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - name: Chack files changed
         uses: dorny/paths-filter@v2
         id: check_files_changed
@@ -31,5 +34,5 @@ jobs:
         if: steps.check_files_changed.outputs.proto == 'true'
         uses: docker://agilepathway/pull-request-label-checker:latest
         with:
-          any_of: proto/category/breakingchange,proto/category/compatiblechange,proto/category/dependencychange
+          any_of:  proto/changes/breaking, proto/changes/compatible, proto/changes/dependency
           repo_token: ${{ secrets.GITHUB_TOKEN }}
