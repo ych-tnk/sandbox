@@ -1,4 +1,4 @@
-name: Checker labels
+name: Checke labels
 on:
   pull_request:
     types:
@@ -10,8 +10,8 @@ on:
 
 jobs:
   check_labels:
-    name: Check labels
     runs-on: ubuntu-latest
+    contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
