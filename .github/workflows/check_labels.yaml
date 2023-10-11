@@ -11,7 +11,8 @@ on:
 jobs:
   check_labels:
     runs-on: ubuntu-latest
-    contents: read
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
