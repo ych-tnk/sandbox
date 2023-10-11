@@ -19,18 +19,18 @@ categories:
 version-resolver:
   major:
     labels:
-      - proto/category/breakingchange
+      -  proto/changes/breaking
   minor:
     labels:
-      - proto/category/compatiblechange
+      -  proto/changes/compatible
   patch:
     labels:
-      - proto/category/dependencychange
+      -  proto/changes/dependency
   default: patch
 include-labels:
-  - proto/category/breakingchange
-  - proto/category/compatiblechange
-  - proto/category/dependencychange
+  -  proto/changes/breaking
+  -  proto/changes/compatible
+  -  proto/changes/dependency
 template: |
   ## What’s Changed
 

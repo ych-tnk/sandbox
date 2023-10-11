@@ -19,12 +19,12 @@
   color: cfd3d7
 
 # proto change category labels
-- name: proto/category/breakingchange
+- name:  proto/changes/breaking
   description: Breaking change of protocol。プロトコル定義に後方互換性のない変更。
   color: d93f0b
-- name: proto/category/compatiblechange
+- name:  proto/changes/compatible
   description: Compatible change of protocol。プロトコル定義に後方互換性のある変更。
   color: 88dd5d
-- name: proto/category/dependencychange
+- name:  proto/changes/dependency
   description: Dependency change of protocol。プロトコル定義から生成するクライアントライブラリの依存関係変更。
   color: cfd3d7
