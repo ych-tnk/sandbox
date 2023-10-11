@@ -1,4 +1,4 @@
-name: Dispatch release
+name: Dispatch proto release
 
 on:
   workflow_dispatch:
