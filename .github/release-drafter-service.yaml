@@ -1,5 +1,4 @@
 tag-template: 'deploy-$RESOLVED_VERSION'
-tag-prefix
 categories:
   - title: ':sparkles: Product Enhancements'
     labels:
