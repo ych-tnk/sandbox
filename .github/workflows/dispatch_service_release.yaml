@@ -35,10 +35,10 @@ jobs:
           tag_name=""
           case "${{ github.event.inputs.release_type }}" in
             'ga')
-              tag_name="$(gh release list --exclude-pre-releases --exclude-drafts --limit 1 | head -2 | cut -f 1 | grep service/deploy- | tr -d '\n')"
+              tag_name="$(gh release list --exclude-pre-releases --exclude-drafts | grep service/deploy- | head -1 | cut -f 1 | tr -d '\n')"
               ;;
             'rc')
-              tag_name="$(gh release list --exclude-drafts --limit 1 | head -2 | cut -f 1 | grep service/deploy- | tr -d '\n')"
+              tag_name="$(gh release list --exclude-drafts | grep service/deploy- | head -1 | cut -f 1 | tr -d '\n')"
               ;;
           esac
           if [ -z "${tag_name}" ]; then
@@ -52,7 +52,7 @@ jobs:
       - name: Get latest release type
         id: get_latest_release_type
         run: |
-          if [ "$(gh release list --exclude-drafts --limit 1 | head -2 | cut -f 2 | grep service/deploy- | tr -d '\n')" == 'Pre-release' ]; then
+          if [ "$(gh release list --exclude-drafts | grep service/deploy- | head -1 | cut -f 2 | tr -d '\n')" == 'Pre-release' ]; then
             echo "value=rc" >> $GITHUB_OUTPUT
           else
             echo "value=ga" >> $GITHUB_OUTPUT
