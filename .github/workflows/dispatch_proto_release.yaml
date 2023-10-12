@@ -162,8 +162,7 @@ jobs:
         with:
           title: Update gem version to ${{ needs.resolve_release_version.outputs.value }}
           labels: |
-            version/patch
-            category/misc
+            pr-category/misc
           token: ${{ secrets.PAT_GITHUB_TOKEN }}
 
       - name: Approve pull request
