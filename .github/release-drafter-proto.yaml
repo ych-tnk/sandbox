@@ -3,34 +3,34 @@ tag-template: proto/v$RESOLVED_VERSION
 categories:
   - title: ':sparkles: Product Enhancements'
     labels:
-      - pr/category/enhancement
+      - pr-category/enhancement
   - title: ':zap: Productivity Improvements'
     labels:
-      - pr/category/improvement
+      - pr-category/improvement
   - title: ':ambulance: Hot Fixes'
     labels:
-      - pr/category/hotfix
+      - pr-category/hotfix
   - title: ':bug: Bug Fixes'
     labels:
-      - pr/category/bugfix
+      - pr-category/bugfix
   - title: 'Miscellaneous'
     labels:
-      - pr/category/misc
+      - pr-category/misc
 version-resolver:
   major:
     labels:
-      -  proto/changes/breaking
+      -  proto-changes/breaking
   minor:
     labels:
-      -  proto/changes/compatible
+      -  proto-changes/compatible
   patch:
     labels:
-      -  proto/changes/dependency
+      -  proto-changes/dependency
   default: patch
 include-labels:
-  -  proto/changes/breaking
-  -  proto/changes/compatible
-  -  proto/changes/dependency
+  -  proto-changes/breaking
+  -  proto-changes/compatible
+  -  proto-changes/dependency
 template: |
   ## What’s Changed
 

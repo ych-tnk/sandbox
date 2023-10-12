@@ -30,21 +30,29 @@ jobs:
       - name: Get latest release tag name
         id: get_latest_release_tag_name
         run: |
+          init_commit="$(git rev-list --max-parents=0 --abbrev-commit HEAD)"
+
+          tag_name=""
           case "${{ github.event.inputs.release_type }}" in
             'ga')
-              echo "value=$(gh release list --exclude-pre-releases --exclude-drafts --limit 1 | head -2 | cut -f 1 | tr -d '\n')" >> $GITHUB_OUTPUT
+              tag_name="$(gh release list --exclude-pre-releases --exclude-drafts --limit 1 | head -2 | cut -f 1 | grep service/deploy- | tr -d '\n')"
               ;;
             'rc')
-              echo "value=$(gh release list --exclude-drafts --limit 1 | head -2 | cut -f 1 | tr -d '\n')" >> $GITHUB_OUTPUT
+              tag_name="$(gh release list --exclude-drafts --limit 1 | head -2 | cut -f 1 | grep service/deploy- | tr -d '\n')"
               ;;
           esac
+          if [ -n "${tag_name}" ]; then
+            tag_name="${init_commit}"
+          fi
+
+          echo "value=${tag_name}" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get latest release type
         id: get_latest_release_type
         run: |
-          if [ "$(gh release list --exclude-drafts --limit 1 | head -2 | cut -f 2)" == 'Pre-release' ]; then
+          if [ "$(gh release list --exclude-drafts --limit 1 | head -2 | cut -f 2 | grep service/deploy- | tr -d '\n')" == 'Pre-release' ]; then
             echo "value=rc" >> $GITHUB_OUTPUT
           else
             echo "value=ga" >> $GITHUB_OUTPUT
@@ -75,7 +83,7 @@ jobs:
         run: |
           if [ "${{ steps.check_existence_releaseable_differences.outputs.has_diffrences }}" == 'true' ]; then
             # Split latest version
-            IFS=',' read -a latest_version_parts <<< $(echo "${{ steps.get_latest_release_tag_name.outputs.value}}" | sed -e 's/deploy-\([0-9]\{8\}\)-\?\([0-9]\+\)\?-\?\(rc\.\)\?\([0-9]\+\)\?/\1,\2,\4/g')
+            IFS=',' read -a latest_version_parts <<< $(echo "${{ steps.get_latest_release_tag_name.outputs.value}}" | sed -e 's/service\/deploy-\([0-9]\{8\}\)-\?\([0-9]\+\)\?-\?\(rc\.\)\?\([0-9]\+\)\?/\1,\2,\4/g')
             latest_core="${latest_version_parts[0]}"
             latest_micro="${latest_version_parts[1]}"
             latest_modifier="${latest_version_parts[2]}"
@@ -101,7 +109,7 @@ jobs:
             fi
 
             # Build next version.
-            next_version="deploy-${next_core}"
+            next_version="service/deploy-${next_core}"
             if [ "${next_micro}" != "0" ]; then
               next_version="${next_version}-${next_micro}"
             fi
@@ -111,7 +119,7 @@ jobs:
 
             echo "value=${next_version}" >> $GITHUB_OUTPUT
           else
-            echo "value=deploy-${{ steps.get_latest_release_tag_name.outputs.value }}" >> $GITHUB_OUTPUT
+            echo "value=service/deploy-${{ steps.get_latest_release_tag_name.outputs.value }}" >> $GITHUB_OUTPUT
           fi
 
   publish_draft_release:

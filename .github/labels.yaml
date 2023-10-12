@@ -2,29 +2,29 @@
 # https://github.com/micnncim/action-label-syncer
 
 # pr category labels
-- name: pr/category/enhancement
+- name: pr-category/enhancement
   description: Product enhancement。機能の追加・改善。
   color: 88dd5d
-- name: pr/category/improvement
+- name: pr-category/improvement
   description: Productiviety improvement。開発効率改善、運用効率改善、リファクタ、ドキュメンテーション。
   color: fbca04
-- name: pr/category/hotfix
+- name: pr-category/hotfix
   description: Hot fix。本番環境に流出した不具合の修正。
   color: e99695
-- name: pr/category/bugfix
+- name: pr-category/bugfix
   description: Bug fix。QAやレビューで発見された不具合の修正。
   color: 1d76db
-- name: pr/category/misc
+- name: pr-category/misc
   description: Miscellaneous。その他。
   color: cfd3d7
 
-# proto change category labels
-- name:  proto/changes/breaking
+# proto change labels
+- name:  proto-changes/breaking
   description: Breaking change of protocol。プロトコル定義に後方互換性のない変更。
   color: d93f0b
-- name:  proto/changes/compatible
+- name:  proto-changes/compatible
   description: Compatible change of protocol。プロトコル定義に後方互換性のある変更。
   color: 88dd5d
-- name:  proto/changes/dependency
+- name:  proto-changes/dependency
   description: Dependency change of protocol。プロトコル定義から生成するクライアントライブラリの依存関係変更。
   color: cfd3d7
