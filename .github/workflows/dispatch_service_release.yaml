@@ -30,21 +30,29 @@ jobs:
       - name: Get latest release tag name
         id: get_latest_release_tag_name
         run: |
+          init_commit="$(git rev-list --max-parents=0 --abbrev-commit HEAD)"
+
+          tag_name=""
           case "${{ github.event.inputs.release_type }}" in
             'ga')
-              echo "value=$(gh release list --exclude-pre-releases --exclude-drafts --limit 1 | head -2 | cut -f 1 | tr -d '\n')" >> $GITHUB_OUTPUT
+              tag_name="$(gh release list --exclude-pre-releases --exclude-drafts --limit 1 | head -2 | cut -f 1 | grep service/deploy- | tr -d '\n')"
               ;;
             'rc')
-              echo "value=$(gh release list --exclude-drafts --limit 1 | head -2 | cut -f 1 | tr -d '\n')" >> $GITHUB_OUTPUT
+              tag_name="$(gh release list --exclude-drafts --limit 1 | head -2 | cut -f 1 | grep service/deploy- | tr -d '\n')"
               ;;
           esac
+          if [ -n "${tag_name}" ]; then
+            tag_name="${init_commit}"
+          fi
+
+          echo "value=${tag_name}" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get latest release type
         id: get_latest_release_type
         run: |
-          if [ "$(gh release list --exclude-drafts --limit 1 | head -2 | cut -f 2)" == 'Pre-release' ]; then
+          if [ "$(gh release list --exclude-drafts --limit 1 | head -2 | cut -f 2 | grep service/deploy- | tr -d '\n')" == 'Pre-release' ]; then
             echo "value=rc" >> $GITHUB_OUTPUT
           else
             echo "value=ga" >> $GITHUB_OUTPUT
