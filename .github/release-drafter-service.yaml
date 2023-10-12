@@ -1,3 +1,5 @@
+name-template: deploy-$RESOLVED_VERSION
+tag-template: deploy-$RESOLVED_VERSION
 categories:
   - title: ':sparkles: Product Enhancements'
     labels:
@@ -19,5 +21,5 @@ template: |
 
   $CHANGES
 
-  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...deploy-$NEXT_PRERELEASE_VERSION
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...deploy-$RESOLVED_VERSION
   $RESOLVED_VERSION
