@@ -90,8 +90,8 @@ jobs:
               next_micro="0"
               next_modifier="0"
             else
-              # Bump only the modifier if the latest release type is rc.
-              if [ "${{ steps.get_latest_release_type.outputs.value }}" != 'rc' ]; then
+              # Bump only the modifier if both the next and latest release type are rc.
+              if [ "${{ github.event.inputs.release_type }}" == 'ga' ] || [ "${{ steps.get_latest_release_type.outputs.value }}" == 'ga' ]; then
                 next_micro="$((${latest_micro:-0} + 1))"
               else
                 next_micro="${latest_micro:-0}"
