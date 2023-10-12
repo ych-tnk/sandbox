@@ -1,5 +1,6 @@
 name-template: proto/v$RESOLVED_VERSION
 tag-template: proto/v$RESOLVED_VERSION
+tag-prefix: proto/v
 categories:
   - title: ':sparkles: Product Enhancements'
     labels:
@@ -36,4 +37,4 @@ template: |
 
   $CHANGES
 
-  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...proto/v$RESOLVED_VERSION
