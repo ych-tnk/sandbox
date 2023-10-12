@@ -40,6 +40,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Get latest release type
+        id: get_latest_release_type
+        run: |
+          if [ "$(gh release list --exclude-drafts --limit 1 | head -2 | cut -f 2)" == "Pre-release" ]; then
+            echo "value=rc" >> $GITHUB_OUTPUT"
+          else
+            echo "value=ga" >> $GITHUB_OUTPUT"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Check existence of releasable differences
         id: check_existence_releaseable_differences
         run: |
@@ -73,19 +84,16 @@ jobs:
 
             # Resolve next micro.
             next_micro="0"
-            if [ "${next_core}" != "${latest_core}" ]; then
-              # The micro is reset if the core is bumped.
-              next_micro="0"
-            else
-              next_micro="$((${latest_micro:-0} + 1))"
-            fi
-
-            # Resolve next modifier.
             next_modifier="0"
             if [ "${next_core}" != "${latest_core}" ]; then
-              # The modifier is reset if the core is bumped.
+              # Reset the micro and modifier if the core is bumped.
+              next_micro="0"
               next_modifier="0"
             else
+              # Bump only the modifier if the latest release type is rc.
+              if [ "${{ steps.get_latest_release_type.outputs.value }}" != 'rc' ]; then
+                next_micro="$((${latest_micro:-0} + 1))"
+              fi
               next_modifier="$((${latest_modifier:--1} + 1))"
             fi
 
