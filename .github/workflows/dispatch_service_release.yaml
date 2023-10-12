@@ -74,25 +74,18 @@ jobs:
             # Resolve next micro.
             next_micro="0"
             if [ "${next_core}" != "${latest_core}" ]; then
-              # Reset the micro if the core is bumped.
+              # The micro is reset if the core is bumped.
               next_micro="0"
             else
-              # Bump the micro if the core is not bumped. 
-              if [ "${{ github.event.inputs.release_type }}" == 'ga' ]; then
-                next_micro="$((${latest_micro:-0} + 1))"
-              else
-                # Fix the micro in the rc release.
-                next_micro="${latest_micro:-0}"
-              fi
+              next_micro="$((${latest_micro:-0} + 1))"
             fi
 
             # Resolve next modifier.
             next_modifier="0"
             if [ "${next_core}" != "${latest_core}" ]; then
-              # Reset the micro if the core is bumped.
+              # The modifier is reset if the core is bumped.
               next_modifier="0"
             else
-              # Bump the modifier if the core is not bumped. 
               next_modifier="$((${latest_modifier:--1} + 1))"
             fi
 
