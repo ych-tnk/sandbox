@@ -2,39 +2,39 @@ version: v1
 
 labels:
   # pr category labels
-  - label: pr/category/enhancement
+  - label: pr-category/enhancement
     sync: true
     matcher:
       body: '- \[x\] 機能の追加・改善'
-  - label: pr/category/improvement
+  - label: pr-category/improvement
     sync: true
     matcher:
       body: '- \[x\] 開発効率改善、運用効率改善、リファクタ、ドキュメンテーション'
-  - label: pr/category/hotfix
+  - label: pr-category/hotfix
     sync: true
     matcher:
       body: '- \[x\] 本番環境に流出した不具合の修正'
-  - label: pr/category/bugfix
+  - label: pr-category/bugfix
     sync: true
     matcher:
       body: '- \[x\] QAやレビューで発見された不具合の修正'
-  - label: pr/category/misc
+  - label: pr-category/misc
     sync: true
     matcher:
       body: '- \[x\] その他'
 
   # proto change labels
-  - label:  proto/changes/breaking
+  - label:  proto-changes/breaking
     sync: true
     matcher:
       body: '\[x\] プロトコル定義に後方互換性のある変更'
       files: 'proto/**'
-  - label:  proto/changes/compatible
+  - label:  proto-changes/compatible
     sync: true
     matcher:
       body: '- \[x\] プロトコル定義に後方互換性のない変更'
       files: 'proto/**'
-  - label:  proto/changes/dependency
+  - label:  proto-changes/dependency
     sync: true
     matcher:
       body: '- \[x\] プロトコル定義から生成するクライアントライブラリの依存関係変更'

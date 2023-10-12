@@ -1,19 +1,19 @@
 categories:
   - title: ':sparkles: Product Enhancements'
     labels:
-      - pr/category/enhancement
+      - pr-category/enhancement
   - title: ':zap: Productivity Improvements'
     labels:
-      - pr/category/improvement
+      - pr-category/improvement
   - title: ':ambulance: Hot Fixes'
     labels:
-      - pr/category/hotfix
+      - pr-category/hotfix
   - title: ':bug: Bug Fixes'
     labels:
-      - pr/category/bugfix
+      - pr-category/bugfix
   - title: 'Miscellaneous'
     labels:
-      - pr/category/misc
+      - pr-category/misc
 template: |
   ## What’s Changed
 
