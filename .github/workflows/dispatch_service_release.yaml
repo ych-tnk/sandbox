@@ -93,6 +93,8 @@ jobs:
               # Bump only the modifier if the latest release type is rc.
               if [ "${{ steps.get_latest_release_type.outputs.value }}" != 'rc' ]; then
                 next_micro="$((${latest_micro:-0} + 1))"
+              else
+                next_micro="${latest_micro:-0}"
               fi
               next_modifier="$((${latest_modifier:--1} + 1))"
             fi
