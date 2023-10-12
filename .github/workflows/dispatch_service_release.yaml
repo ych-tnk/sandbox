@@ -78,7 +78,7 @@ jobs:
               next_micro="0"
             else
               # Bump the micro if the core is not bumped. 
-              if [ "${release_type}" == 'ga' ]; then
+              if [ "${{ github.event.inputs.release_type }}" == 'ga' ]; then
                 next_micro="$((${latest_micro:-0} + 1))"
               else
                 # Fix the micro in the rc release.
@@ -101,7 +101,7 @@ jobs:
             if [ "${next_micro}" != "0" ]; then
               next_version="${next_version}-${next_micro}"
             fi
-            if [ "${release_type}" == 'rc' ]; then
+            if [ "${{ github.event.inputs.release_type }}" == 'rc' ]; then
               next_version="${next_version}-rc.${next_modifier}"
             fi
 
