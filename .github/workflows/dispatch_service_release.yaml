@@ -30,8 +30,6 @@ jobs:
       - name: Get latest release tag name
         id: get_latest_release_tag_name
         run: |
-          init_commit="$(git rev-list --max-parents=0 --abbrev-commit HEAD)"
-
           tag_name=""
           case "${{ github.event.inputs.release_type }}" in
             'ga')
@@ -42,7 +40,7 @@ jobs:
               ;;
           esac
           if [ -z "${tag_name}" ]; then
-            tag_name="${init_commit}"
+            tag_name="$(git rev-list --max-parents=0 --abbrev-commit HEAD)"
           fi
 
           echo "value=${tag_name}" >> $GITHUB_OUTPUT

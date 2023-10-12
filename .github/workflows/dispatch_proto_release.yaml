@@ -39,14 +39,20 @@ jobs:
       - name: Get latest release tag name
         id: get_latest_release_tag_name
         run: |
+          tag_name=""
           case "${{ github.event.inputs.release_type }}" in
             'ga')
-              echo "value=$(gh release list --exclude-pre-releases --exclude-drafts --limit 1 | head -2 | cut -f 1 | tr -d '\n')" >> $GITHUB_OUTPUT
+              tag_name="$(gh release list --exclude-pre-releases --exclude-drafts --limit 1000 | grep proto/v | head -1 | cut -f 1 | tr -d '\n')" >> $GITHUB_OUTPUT
               ;;
             'rc')
-              echo "value=$(gh release list --exclude-drafts --limit 1 | head -2 | cut -f 1 | tr -d '\n')" >> $GITHUB_OUTPUT
+              tag_name="$(gh release list --exclude-drafts --limit 1000 | grep proto/v | head -1 | cut -f 1 | tr -d '\n')" >> $GITHUB_OUTPUT
               ;;
           esac
+          if [ -z "${tag_name}" ]; then
+            tag_name="$(git rev-list --max-parents=0 --abbrev-commit HEAD)"
+          fi
+
+          echo "value=${tag_name}" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
