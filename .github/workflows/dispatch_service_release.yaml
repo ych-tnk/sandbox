@@ -61,7 +61,7 @@ jobs:
       - name: Resolve release version
         id: resolve_release_version
         run: |
-          if [ -n "${{ steps.check_existence_releaseable_differences.outputs.has_diffrences }}" ]; then
+          if [ "${{ steps.check_existence_releaseable_differences.outputs.has_diffrences }}" == 'true' ]; then
             # Split latest version
             IFS=',' read -a latest_version_parts <<< $(echo "${{ steps.get_latest_release_tag_name.outputs.value}}" | sed -e 's/deploy-\([0-9]\{4\}\.[0-9]\{2\}\.[0-9]\{2\}\)-\?\([0-9]\+\)\?-\?\(rc\.\)\?\([0-9]\+\)\?/\1,\2,\4/g')
             latest_core="${latest_version_parts[0]}"
