@@ -140,8 +140,9 @@ jobs:
         with:
           config-name: release-drafter-service.yaml
           prerelease: ${{ github.event.inputs.release_type == 'rc' }}
-          prerelease-identifier: ${{ github.event.inputs.release_type == 'rc' || 'rc' }}
+          prerelease-identifier: ${{ github.event.inputs.release_type == 'rc' && 'rc' || '' }}
           publish: true
           tag: ${{ needs.resolve_release_version.outputs.value }}
+          version: ${{ needs.resolve_release_version.outputs.value }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
