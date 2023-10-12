@@ -119,7 +119,7 @@ jobs:
 
             echo "value=${next_version}" >> $GITHUB_OUTPUT
           else
-            echo "value=service/deploy-${{ steps.get_latest_release_tag_name.outputs.value }}" >> $GITHUB_OUTPUT
+            echo "value=${{ steps.get_latest_release_tag_name.outputs.value }}" >> $GITHUB_OUTPUT
           fi
 
   publish_draft_release:
