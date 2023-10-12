@@ -41,7 +41,7 @@ jobs:
               tag_name="$(gh release list --exclude-drafts --limit 1 | head -2 | cut -f 1 | grep service/deploy- | tr -d '\n')"
               ;;
           esac
-          if [ -n "${tag_name}" ]; then
+          if [ -z "${tag_name}" ]; then
             tag_name="${init_commit}"
           fi
 
