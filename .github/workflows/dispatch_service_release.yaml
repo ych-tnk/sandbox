@@ -18,7 +18,10 @@ jobs:
       contents: write
       pull-requests: write
     outputs:
-      value: ${{ steps.resolve_release_version.outputs.value }}
+      next_core: ${{ steps.resolve_release_version.outputs.next_core }}
+      next_micro: ${{ steps.resolve_release_version.outputs.next_micro }}
+      next_modifier: ${{ steps.resolve_release_version.outputs.next_modifier }}
+      next_version: ${{ steps.resolve_release_version.outputs.next_version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -72,13 +75,13 @@ jobs:
       - name: Resolve release version
         id: resolve_release_version
         run: |
-          if [ "${{ steps.check_existence_releaseable_differences.outputs.has_diffrences }}" == 'true' ]; then
-            # Split latest version
-            IFS=',' read -a latest_version_parts <<< $(echo "${{ steps.get_latest_release_tag_name.outputs.value}}" | sed -e 's/deploy-\([0-9]\{4\}\.[0-9]\{2\}\.[0-9]\{2\}\)-\?\([0-9]\+\)\?-\?\(rc\.\)\?\([0-9]\+\)\?/\1,\2,\4/g')
-            latest_core="${latest_version_parts[0]}"
-            latest_micro="${latest_version_parts[1]}"
-            latest_modifier="${latest_version_parts[2]}"
+          # Split latest version
+          IFS=',' read -a latest_version_parts <<< $(echo "${{ steps.get_latest_release_tag_name.outputs.value}}" | sed -e 's/deploy-\([0-9]\{4\}\.[0-9]\{2\}\.[0-9]\{2\}\)-\?\([0-9]\+\)\?-\?\(rc\.\)\?\([0-9]\+\)\?/\1,\2,\4/g')
+          latest_core="${latest_version_parts[0]}"
+          latest_micro="${latest_version_parts[1]}"
+          latest_modifier="${latest_version_parts[2]}"
 
+          if [ "${{ steps.check_existence_releaseable_differences.outputs.has_diffrences }}" == 'true' ]; then
             # Resolve next core.
             next_core=$(date '+%Y.%m.%d')
 
@@ -108,9 +111,15 @@ jobs:
               next_version="${next_version}-rc.${next_modifier}"
             fi
 
-            echo "value=${next_version}" >> $GITHUB_OUTPUT
+            echo "next_core=${next_core}" >> $GITHUB_OUTPUT
+            echo "next_micro=${next_micro}" >> $GITHUB_OUTPUT
+            echo "next_modifier=${next_modifier}" >> $GITHUB_OUTPUT
+            echo "next_version=${next_version}" >> $GITHUB_OUTPUT
           else
-            echo "value=deploy-${{ steps.get_latest_release_tag_name.outputs.value }}" >> $GITHUB_OUTPUT
+            echo "next_core=${latest_core}" >> $GITHUB_OUTPUT
+            echo "next_micro=${latest_micro}" >> $GITHUB_OUTPUT
+            echo "next_modifier=${latest_modifier}" >> $GITHUB_OUTPUT
+            echo "next_version=deploy-${{ steps.get_latest_release_tag_name.outputs.value }}" >> $GITHUB_OUTPUT
           fi
 
   publish_draft_release:
@@ -140,9 +149,9 @@ jobs:
         with:
           config-name: release-drafter-service.yaml
           prerelease: ${{ github.event.inputs.release_type == 'rc' }}
-          prerelease-identifier: ${{ github.event.inputs.release_type == 'rc' && 'rc' || '' }}
+          prerelease-identifier: ${{ github.event.inputs.release_type == 'rc' && format('{0}-{1}', needs.resolve_release_version.outputs.next_micro, 'rc') || '' }}
           publish: true
-          tag: ${{ needs.resolve_release_version.outputs.value }}
-          version: ${{ needs.resolve_release_version.outputs.value }}
+          tag: ${{ needs.resolve_release_version.outputs.next_version }}
+          version: ${{ needs.resolve_release_version.outputs.next_version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
