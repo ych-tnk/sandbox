@@ -150,7 +150,12 @@ jobs:
       - name: Add full changelog
         if: steps.check_existence_draft_release.outputs.published == 'false'
         run: |
-          full_chengelog="**Full Changelog**: https://github.com/${{ github.repository }}/compare/${{ needs.resolve_release_version.outputs.latest }}...${{ needs.resolve_release_version.outputs.next }}"
-          gh release edit ${{ steps.publish_draft_release.outputs.tag_name }} --notes "${{ steps.publish_draft_release.outputs.body }}\n${full_chengelog}"
+          replacement=$(cat <<EOS
+          ${{ steps.publish_draft_release.outputs.body }}
+
+          **Full Changelog**: https://github.com/${{ github.repository }}/compare/${{ needs.resolve_release_version.outputs.latest }}...${{ needs.resolve_release_version.outputs.next }}
+          EOS
+          )
+          gh release edit ${{ steps.publish_draft_release.outputs.tag_name }} --notes "${replacement}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
