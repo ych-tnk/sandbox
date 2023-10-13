@@ -35,5 +35,5 @@ jobs:
         if: steps.check_files_changed.outputs.proto == 'true'
         uses: docker://agilepathway/pull-request-label-checker:latest
         with:
-          any_of:  proto-changes/breaking, proto-changes/compatible, proto-changes/dependency
+          any_of: proto-changes/breaking,proto-changes/compatible,proto-changes/dependency
           repo_token: ${{ secrets.GITHUB_TOKEN }}
