@@ -28,14 +28,11 @@ labels:
     sync: true
     matcher:
       body: '\[x\] プロトコル定義に後方互換性のある変更'
-      files: 'proto/**'
   - label:  proto-changes/compatible
     sync: true
     matcher:
       body: '- \[x\] プロトコル定義に後方互換性のない変更'
-      files: 'proto/**'
   - label:  proto-changes/dependency
     sync: true
     matcher:
       body: '- \[x\] プロトコル定義から生成するクライアントライブラリの依存関係変更'
-      files: 'proto/**'
