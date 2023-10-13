@@ -17,6 +17,9 @@
 - name: pr-category/misc
   description: Miscellaneous。その他。
   color: cfd3d7
+- name: pr-category/bump
+  description: Bump version。バージョンの更新。
+  color: fff5ee
 
 # proto change labels
 - name:  proto-changes/breaking
