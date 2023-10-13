@@ -28,7 +28,7 @@ jobs:
       - name: Check pr labels
         uses: docker://agilepathway/pull-request-label-checker:latest
         with:
-          any_of: pr-category/enhancement,pr-category/improvement,pr-category/hotfix,pr-category/bugfix,pr-category/misc
+          any_of: pr-category/enhancement,pr-category/improvement,pr-category/hotfix,pr-category/bugfix,pr-category/misc,pr-category/bump
           repo_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check proto labels

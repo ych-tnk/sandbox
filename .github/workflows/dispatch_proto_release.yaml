@@ -59,7 +59,7 @@ jobs:
       - name: Check existence of releasable differences
         id: check_existence_releaseable_differences
         run: |
-          diff="$(git diff --shortstat ${{ steps.get_latest_release_tag_name.outputs.value }}...)"
+          diff="$(git diff --shortstat --relative=proto ${{ steps.get_latest_release_tag_name.outputs.value }}...)"
           if [ -n "${diff}" ]; then
             echo "has_diffrences=true" >> $GITHUB_OUTPUT
           else
@@ -162,7 +162,7 @@ jobs:
         with:
           title: Update gem version to ${{ needs.resolve_release_version.outputs.value }}
           labels: |
-            pr-category/misc
+            pr-category/bump
           token: ${{ secrets.PAT_GITHUB_TOKEN }}
 
       - name: Approve pull request
