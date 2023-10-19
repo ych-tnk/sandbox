@@ -1,5 +1,5 @@
 syntax = "proto3";
-package sandbox;
+package sandbox.v1;
 
 import "google/protobuf/timestamp.proto";
 
@@ -31,4 +31,3 @@ message Person {
 message AddressBook {
     repeated Person people = 1;
 }
-
