@@ -232,5 +232,6 @@ jobs:
           prerelease: ${{ github.event.inputs.release_type == 'rc' }}
           prerelease-identifier: ${{ github.event.inputs.release_type == 'rc' && 'rc' || '' }}
           publish: true
+          latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
