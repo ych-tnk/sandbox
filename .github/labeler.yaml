@@ -27,12 +27,12 @@ labels:
   - label:  proto-changes/breaking
     sync: true
     matcher:
-      body: '\[x\] プロトコル定義に後方互換性のある変更'
+      body: '\[x\] プロトコル定義に後方互換性のない変更。proto のメジャーバージョンが上がる。'
   - label:  proto-changes/compatible
     sync: true
     matcher:
-      body: '- \[x\] プロトコル定義に後方互換性のない変更'
+      body: '- \[x\] プロトコル定義に後方互換性のある変更。proto のマイナーバージョンが上がる。'
   - label:  proto-changes/dependency
     sync: true
     matcher:
-      body: '- \[x\] プロトコル定義から生成するクライアントライブラリの依存関係変更'
+      body: '- \[x\] プロトコル定義から生成するクライアントライブラリの依存関係変更。proto のパッチバージョンが上がる。'
