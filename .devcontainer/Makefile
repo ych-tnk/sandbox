@@ -16,7 +16,7 @@ setup-known-hosts:
 
 .PHONY: setup-go-workspace
 setup-go-workspace:
-	cp $(DEVCONTAINER_CONFIG)/go/go.work $(PROJECT_ROOT)/go.work 
+	cp -f $(DEVCONTAINER_CONFIG)/go/go.work $(PROJECT_ROOT)/go.work 
 
 setup-project:
 	make -C $(PROJECT_ROOT) --makefile=$(PROJECT_ROOT)/Makefile setup
