@@ -23,11 +23,11 @@
 
 # proto change labels
 - name:  proto-changes/breaking
-  description: Breaking change of protocol。プロトコル定義に後方互換性のない変更。protocl のメジャーバージョンが上がる。
+  description: Breaking change of protocol。プロトコル定義に後方互換性のない変更。proto のメジャーバージョンが上がる。
   color: d93f0b
 - name:  proto-changes/compatible
-  description: Compatible change of protocol。プロトコル定義に後方互換性のある変更。protocl のマイナーバージョンが上げる。
+  description: Compatible change of protocol。プロトコル定義に後方互換性のある変更。proto のマイナーバージョンが上げる。
   color: 88dd5d
 - name:  proto-changes/dependency
-  description: Dependency change of protocol。プロトコル定義から生成するクライアントライブラリの依存関係変更。protocl のパッチバージョンが上げる。
+  description: Dependency change of protocol。プロトコル定義から生成するクライアントライブラリの依存関係変更。proto のパッチバージョンが上げる。
   color: cfd3d7
