@@ -1,4 +1,4 @@
-module github.com/ych-tnk/sandbox/proto/v3
+module github.com/ych-tnk/sandbox/proto
 
 go 1.20
 
