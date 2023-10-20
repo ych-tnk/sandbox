@@ -1,9 +1,9 @@
 syntax = "proto3";
-package sandbox.v1;
+package sandbox.v3;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/ych-tnk/sandbox/proto/v1";
+option go_package = "github.com/ych-tnk/sandbox/proto/sandbox/v3";
 
 message Person {
     string name = 1;
