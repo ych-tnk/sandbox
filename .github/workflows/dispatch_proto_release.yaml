@@ -14,12 +14,12 @@ on:
         description: A duration until to start watching pr checks (in seconds)
         required: false
         type: string
-        default: 30
+        default: '30'
       pr_checks_watch_interval:
         description: A refresh interval when watching pr checks (in seconds)
         required: false
         type: string
-        default: 120
+        default: '120'
 
 jobs:
   resolve_release_version:
@@ -121,7 +121,7 @@ jobs:
         id: get_publish_gem_info
         run: |
           echo "name=$(sed -n -e "s/[[:blank:]]*.*\.\?[^_]name[[:blank:]]*=[[:blank:]]*['\"]\(.*\)['\"].*/\1/ip" ${{ vars.GEMSPEC_PATH }})" >> $GITHUB_OUTPUT
-          echo "version=$(echo ${{ needs.resolve_release_version.outputs.value }} | sed -e 's/^proto\/v//' -e 's/^\([[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\)[-]\?\(.\+\)$/\1.\2/')" >> $GITHUB_OUTPUT
+          echo "version=$(echo ${{ needs.resolve_release_version.outputs.value }} | sed -e 's/^v//' -e 's/^\([[:digit:]]\+\.[[:digit:]]\+\.[[:digit:]]\+\)[-]\?\(.\+\)$/\1.\2/')" >> $GITHUB_OUTPUT
 
       - name: Check current gem status
         id: check_current_gem_status
