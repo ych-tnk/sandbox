@@ -150,7 +150,7 @@ jobs:
           prerelease: ${{ github.event.inputs.release_type == 'rc' }}
           publish: true
           tag: ${{ needs.resolve_release_version.outputs.next }}
-          name: ${{ needs.resolve_release_version.outputs.next }}
+          name: service ${{ needs.resolve_release_version.outputs.next }}
           latest: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
