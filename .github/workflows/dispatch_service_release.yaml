@@ -33,10 +33,10 @@ jobs:
           tag_name=""
           case "${{ github.event.inputs.release_type }}" in
             'ga')
-              tag_name="$(gh release list --exclude-pre-releases --exclude-drafts | grep service/deploy- | head -1 | cut -f 1 | tr -d '\n')"
+              tag_name="$(gh release list --exclude-pre-releases --exclude-drafts | grep ^deploy- | head -1 | cut -f 1 | tr -d '\n')"
               ;;
             'rc')
-              tag_name="$(gh release list --exclude-drafts | grep service/deploy- | head -1 | cut -f 1 | tr -d '\n')"
+              tag_name="$(gh release list --exclude-drafts | grep ^deploy- | head -1 | cut -f 1 | tr -d '\n')"
               ;;
           esac
           if [ -z "${tag_name}" ]; then
@@ -50,7 +50,7 @@ jobs:
       - name: Get latest release type
         id: get_latest_release_type
         run: |
-          if [ "$(gh release list --exclude-drafts | grep service/deploy- | head -1 | cut -f 2 | tr -d '\n')" == 'Pre-release' ]; then
+          if [ "$(gh release list --exclude-drafts | grep ^deploy- | head -1 | cut -f 2 | tr -d '\n')" == 'Pre-release' ]; then
             echo "value=rc" >> $GITHUB_OUTPUT
           else
             echo "value=ga" >> $GITHUB_OUTPUT
@@ -81,7 +81,7 @@ jobs:
         run: |
           if [ "${{ steps.check_existence_releaseable_differences.outputs.has_diffrences }}" == 'true' ]; then
             # Split latest version
-            IFS=',' read -a latest_version_parts <<< $(echo "${{ steps.get_latest_release_tag_name.outputs.value}}" | sed -e 's/service\/deploy-\([0-9]\{8\}\)\.\?\([0-9]\+\)\?-\?\(rc\.\)\?\([0-9]\+\)\?/\1,\2,\4/g')
+            IFS=',' read -a latest_version_parts <<< $(echo "${{ steps.get_latest_release_tag_name.outputs.value}}" | sed -e 's/deploy-\([0-9]\{8\}\)\.\?\([0-9]\+\)\?-\?\(rc\.\)\?\([0-9]\+\)\?/\1,\2,\4/g')
             latest_core="${latest_version_parts[0]}"
             latest_micro="${latest_version_parts[1]}"
             latest_modifier="${latest_version_parts[2]}"
@@ -107,7 +107,7 @@ jobs:
             fi
 
             # Build next version.
-            next_version="service/deploy-${next_core}"
+            next_version="deploy-${next_core}"
             if [ "${next_micro}" != "0" ]; then
               next_version="${next_version}.${next_micro}"
             fi
@@ -150,7 +150,7 @@ jobs:
           prerelease: ${{ github.event.inputs.release_type == 'rc' }}
           publish: true
           tag: ${{ needs.resolve_release_version.outputs.next }}
-          name: ${{ needs.resolve_release_version.outputs.next }}
+          name: service ${{ needs.resolve_release_version.outputs.next }}
           latest: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
