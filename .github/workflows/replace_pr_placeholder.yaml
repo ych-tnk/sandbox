@@ -28,7 +28,7 @@ jobs:
       - name: Replace protocol-changes
         if: steps.check_files_changed.outputs.proto == 'true'
         run: |
-          replaced="$(gh pr view ${{ github.event.number }} --json body --jq .body | sed -e '/^<!-- protocol-changes/d' -e '/^protocol-changes -->/d'
+          replaced="$(gh pr view ${{ github.event.number }} --json body --jq .body | sed -e '/^<!-- protocol-changes/d' -e '/^protocol-changes -->/d')"
           gh pr edit ${{ github.event.number }} --body "${replaced}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
