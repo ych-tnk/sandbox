@@ -28,15 +28,7 @@ jobs:
       - name: Replace protocol-changes
         if: steps.check_files_changed.outputs.proto == 'true'
         run: |
-          replacement=$(cat << EOS
-          ## :cop: Protocol Changes/プロトコルの変更\\n
-          <!-- プロトコルに変更があれば選択する。 -->\\n
-          - [ ] プロトコル定義に後方互換性のない変更。proto のメジャーバージョンが上がる。\\n
-          - [ ] プロトコル定義に後方互換性のある変更。proto のマイナーバージョンが上がる。\\n
-          - [ ] プロトコル定義から生成するクライアントライブラリの依存関係変更。proto のパッチバージョンが上がる。
-          EOS
-          )
-          replaced="$(gh pr view ${{ github.event.number }} --json body --jq .body | sed -e "s%<!-- protocol-changes -->%$(echo ${replacement})%")"
+          replaced="$(gh pr view ${{ github.event.number }} --json body --jq .body | sed -e '/^<!-- protocol-changes/d' -e '/^protocol-changes -->/d'
           gh pr edit ${{ github.event.number }} --body "${replaced}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
